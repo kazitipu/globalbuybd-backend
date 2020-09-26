@@ -56,7 +56,7 @@ export class Login extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <a href="https://react.pixelstrap.com/multikart" target="_blank" className="btn btn-primary back-btn"><ArrowLeft />back</a>
+                            {/* <a href="https://react.pixelstrap.com/multikart" target="_blank" className="btn btn-primary back-btn"><ArrowLeft />back</a> */}
                         </div>
                     </div>
                 </div>

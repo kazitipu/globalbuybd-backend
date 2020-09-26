@@ -1,26 +1,28 @@
 import React, { Component,Fragment } from 'react';
 import Breadcrumb from '../../common/breadcrumb';
-import CKEditors from "react-ckeditor-component";
-import { AvField, AvForm } from 'availity-reactstrap-validation';
-import one from '../../../assets/images/pro3/1.jpg'
-import user from '../../../assets/images/user.png';
+import addProduct from '../../../assets/images/addProduct.png';
+import {uploadImage,uploadProduct} from '../../../firebase/firebase.utils'
 
 export class Add_product extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            product_name:'',
+            price:'',
+            product_code:'',
+            category:'Bags',
             quantity: 1,
+            description:'',
             file: '',
+            mainImg:addProduct,
             dummyimgs: [
-                { img: user },
-                { img: user },
-                { img: user },
-                { img: user },
-                { img: user },
-                { img: user },
+                { img: addProduct },
+                { img: addProduct },
+                { img: addProduct },
             ]
         }
     }
+    
     IncrementItem = () => {
         this.setState(prevState => {
             if (prevState.quantity < 9) {
@@ -44,15 +46,61 @@ export class Add_product extends Component {
         });
     }
     handleChange = (event) => {
-        this.setState({ quantity: event.target.value });
+        const {name,value} =event.target;
+        this.setState({ [name]:value });
+    }
+
+    handleFormSubmit = async (event) =>{
+        event.preventDefault()
+        console.log(this.state)
+        await uploadProduct(this.state)
+        this.setState({
+            product_name:'',
+            price:'',
+            product_code:'',
+            category:'Bags',
+            quantity: 1,
+            description:'',
+            file: '',
+            mainImg:addProduct,
+            dummyimgs: [
+                { img: addProduct },
+                { img: addProduct },
+                { img: addProduct },
+            ]
+        })
+        
     }
 
     //image upload
-    _handleSubmit(e) {
-        e.preventDefault();
+    handleMainImgChange =async (event)=>{
+        event.preventDefault();
+        let reader = new FileReader();
+        let file = event.target.files[0];
+        console.log(file)
+        reader.onloadend =() =>{
+            this.setState({
+                file,
+                mainImg:reader.result
+            })
+        }
+        if (file){
+            reader.readAsDataURL(file)
+            const imgUrl =await uploadImage(file)
+            console.log(imgUrl)
+            this.setState({
+                mainImg:imgUrl
+            })
+        }
+       
+
     }
 
-    _handleImgChange(e, i) {
+    // _handleSubmit(e) {
+    //     e.preventDefault();
+    // }
+
+    _handleImgChange= async (e, i) => {
         e.preventDefault();
 
         let reader = new FileReader();
@@ -66,10 +114,20 @@ export class Add_product extends Component {
                 dummyimgs,
             });
         }
-        reader.readAsDataURL(file)
+        if (file){
+            reader.readAsDataURL(file)
+            const imgUrl =await uploadImage(file)
+            dummyimgs[i].img  = imgUrl
+            this.setState({
+                dummyimgs
+            })
+            console.log(dummyimgs)
+        }  
+      
     }
 
-    render() {
+    render(){
+        
         return (
             <Fragment>
                 <Breadcrumb title="Add Product" parent="Physical" />
@@ -86,10 +144,13 @@ export class Add_product extends Component {
                                         <div className="col-xl-5">
                                             <div className="add-product">
                                                 <div className="row">
-                                                    <div className="col-xl-9 xl-50 col-sm-6 col-9">
-                                                        <img src={one} alt="" className="img-fluid image_zoom_1 blur-up lazyloaded" />
+                                                    <div className="col-xl-9 xl-50 col-sm-6 col-9" style={{'cursor':'pointer'}}>
+                                                    <div className="box-input-file">
+                                                        <img src={this.state.mainImg} alt="product" className="img-fluid image_zoom_1 blur-up lazyloaded" />
+                                                        <input className="upload" type="file" onChange={this.handleMainImgChange} />
                                                     </div>
-                                                    <div className="col-xl-3 xl-50 col-sm-6 col-3">
+                                                    </div>
+                                                    <div className="col-xl-3 xl-50 col-sm-6 col-3" style={{'cursor':'pointer'}} >
                                                         <ul className="file-upload-product">
                                                             {
                                                                 this.state.dummyimgs.map((res, i) => {
@@ -98,7 +159,7 @@ export class Add_product extends Component {
                                                                             <div className="box-input-file">
                                                                                 <input className="upload" type="file" onChange={(e) => this._handleImgChange(e, i)} />
                                                                                 <img src={res.img} style={{ width: 50, height: 50 }} />
-                                                                                <a id="result1" onClick={(e) => this._handleSubmit(e.target.id)}></a>
+                                                                                {/* <a id="result1" onClick={(e) => this._handleSubmit(e.target.id)}></a> */}
                                                                             </div>
                                                                         </li>
                                                                     )
@@ -110,39 +171,41 @@ export class Add_product extends Component {
                                             </div>
                                         </div>
                                         <div className="col-xl-7">
-                                            <AvForm className="needs-validation add-product-form" onValidSubmit={this.handleValidSubmit} onInvalidSubmit={this.handleInvalidSubmit}>
+                                            <form className="needs-validation add-product-form" onSubmit={this.handleFormSubmit}>
                                                 <div className="form form-label-center">
                                                     <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-sm-4 mb-0">Product Name :</label>
                                                         <div className="col-xl-8 col-sm-7">
-                                                            <AvField className="form-control" name="product_name" id="validationCustom01" type="text" required />
+                                                            <input className="form-control" name="product_name" value={this.state.product_name} id="validationCustom01" type="text" onChange={this.handleChange} required />
                                                         </div>
                                                         <div className="valid-feedback">Looks good!</div>
                                                     </div>
                                                     <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-sm-4 mb-0">Price :</label>
                                                         <div className="col-xl-8 col-sm-7">
-                                                            <AvField className="form-control mb-0" name="price" id="validationCustom02" type="number" required />
+                                                            <input className="form-control mb-0" name="price" value ={this.state.price} id="validationCustom02" type="number" onChange={this.handleChange} required />
                                                         </div>
                                                         <div className="valid-feedback">Looks good!</div>
                                                     </div>
                                                     <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-sm-4 mb-0">Product Code :</label>
                                                         <div className="col-xl-8 col-sm-7">
-                                                            <AvField className="form-control " name="product_code" id="validationCustomUsername" type="number" required />
+                                                            <input className="form-control " name="product_code" value={this.state.prouct_code} id="validationCustomUsername" type="text" onChange={this.handleChange} required />
                                                         </div>
                                                         <div className="invalid-feedback offset-sm-4 offset-xl-3">Please choose Valid Code.</div>
                                                     </div>
                                                 </div>
                                                 <div className="form">
                                                     <div className="form-group row">
-                                                        <label className="col-xl-3 col-sm-4 mb-0" >Select Size :</label>
+                                                        <label className="col-xl-3 col-sm-4 mb-0" >Category :</label>
                                                         <div className="col-xl-8 col-sm-7">
-                                                            <select className="form-control digits" id="exampleFormControlSelect1">
-                                                                <option>Small</option>
-                                                                <option>Medium</option>
-                                                                <option>Large</option>
-                                                                <option>Extra Large</option>
+                                                            <select className="form-control digits" id="exampleFormControlSelect1" name="category" value={this.state.category} onChange={this.handleChange}>
+                                                                <option>Bags</option>
+                                                                <option>Beauty</option>
+                                                                <option>Fashion</option>
+                                                                <option>Watch</option>
+                                                                <option>Kids</option>
+                                                                <option>others</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -158,7 +221,7 @@ export class Add_product extends Component {
                                                                 <div className="input-group-prepend">
                                                                     <span className="input-group-text bootstrap-touchspin-prefix" ></span>
                                                                 </div>
-                                                                <input className="touchspin form-control" type="text" value={this.state.quantity} onChange={this.handleChange} />
+                                                                <input className="touchspin form-control" name="quantity" type="text" value={this.state.quantity} onChange={this.handleChange} />
                                                                 <div className="input-group-append">
                                                                     <span className="input-group-text bootstrap-touchspin-postfix"></span>
                                                                 </div>
@@ -171,25 +234,16 @@ export class Add_product extends Component {
                                                         </fieldset>
                                                     </div>
                                                     <div className="form-group row">
-                                                        <label className="col-xl-3 col-sm-4">Add Description :</label>
-                                                        <div className="col-xl-8 col-sm-7 description-sm">
-                                                            <CKEditors
-                                                                activeclassName="p10"
-                                                                content={this.state.content}
-                                                                events={{
-                                                                    "blur": this.onBlur,
-                                                                    "afterPaste": this.afterPaste,
-                                                                    "change": this.onChange
-                                                                }}
-                                                            />
-                                                        </div>
+                                                        <label className="col-xl-3 col-sm-4">Add Description:</label>
+                                                        <textarea className="form-control" style={{"marginTop":"1rem"}} rows="10" type="text" name="description" value={this.state.description} onChange={this.handleChange}>
+                                                            </textarea>
                                                     </div>
                                                 </div>
                                                 <div className="offset-xl-3 offset-sm-4">
                                                     <button type="submit" className="btn btn-primary">Add</button>
-                                                    <button type="button" className="btn btn-light">Discard</button>
+                                                    <button type="button" onClick={this.handleDiscard} className="btn btn-light">Discard</button>
                                                 </div>
-                                            </AvForm>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

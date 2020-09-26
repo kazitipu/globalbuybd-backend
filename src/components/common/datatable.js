@@ -3,6 +3,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {deleteProduct} from './../../firebase/firebase.utils'
 
 
 export class Datatable extends Component {
@@ -39,39 +40,85 @@ export class Datatable extends Component {
     };
 
     renderEditable = (cellInfo) => {
-        return (
-            <div
-                style={{ backgroundColor: "#fafafa" }}
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={e => {
-                    const data = [...this.state.myData];
-                    data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-                    this.setState({ myData: data });
-                }}
-                dangerouslySetInnerHTML={{
-                    __html: this.state.myData[cellInfo.index][cellInfo.column.id]
-                }}
-            />
-        );
+        const { myData } = this.props
+        if (myData.length > 0){
+            const newData =[]
+            myData.forEach(product =>{
+                delete product.dummyimgs
+                delete product.description
+                newData.push({
+                    code: product.product_code,
+                    image: <img src={`${product.mainImg}`} style={{width:50,height:50}}/>,
+                    name: product.product_name,
+                    price: product.price,
+                    status: this.getStatus(product.quantity),
+                    category: product.category
+                })
+                
+            });
+            return (
+                <div
+                    style={{ backgroundColor: "#fafafa" }}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={e => {
+                        const data = [...newData];
+                        data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+                        this.setState({ myData: data });
+                    }}
+                    dangerouslySetInnerHTML={{
+                        __html:newData[cellInfo.index][cellInfo.column.id]
+                    }}
+                />
+            );
+        }
+        else{
+            return null;
+        }
+        
     }
 
     Capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    getStatus =(productQuantity) =>{
+        if (productQuantity < 10){
+            return (<i className="fa fa-circle font-danger f-12" />)
+        }else if (productQuantity >50){
+            return (<i className="fa fa-circle font-success f-12" />)
+        }else {
+            return (<i className="fa fa-circle font-warning f-12" />)
+        }
+    }
+
     render() {
         const { pageSize, myClass, multiSelectOption, pagination } = this.props;
-        const { myData } = this.state
+        const { myData } = this.props
+        console.log(myData)
+        const newData = []
+        myData.forEach(product =>{
+            delete product.dummyimgs
+            delete product.description
+            console.log(product.mainImg)
+            newData.push({
+                code: product.product_code,
+                image: <img src={`${product.mainImg}`} style={{width:50,height:50}}/>,
+                name: product.product_name,
+                price: product.price,
+                status: this.getStatus(product.quantity),
+                category: product.category
+            })   
+        });
 
         const columns = [];
-        for (var key in myData[0]) {
+        for (var key in newData[0]) {
 
             let editable = this.renderEditable
-            if (key === "image") {
+            if (key == "image") {
                 editable = null;
             }
-            if (key === "status") {
+            if (key == "status") {
                 editable = null;
             }
             if (key === "avtar") {
@@ -133,11 +180,12 @@ export class Datatable extends Component {
                     Cell: (row) => (
                         <div>
                             <span onClick={() => {
-                                if (window.confirm('Are you sure you wish to delete this item?')) {
-                                    let data = myData;
-                                    data.splice(row.index, 1);
-                                    this.setState({ myData: data });
-                                }
+                                let data = myData;
+                                data.splice(row.index, 1);
+                                this.setState({ myData: data });
+                                console.log(row)
+                                deleteProduct(row.original.code)
+                                
                                 toast.success("Successfully Deleted !")
 
                             }}>
@@ -145,7 +193,7 @@ export class Datatable extends Component {
                                 ></i>
                             </span>
 
-                        <span><i className="fa fa-pencil" style={{ width: 35, fontSize: 20, padding: 11,color:'rgb(40, 167, 69)' }}></i></span>
+                        <span onClick ={()=>this.props.history.push(`/products/physical/add-product/${row.original.code}`)}><i className="fa fa-pencil" style={{ width: 35, fontSize: 20, padding: 11,color:'rgb(40, 167, 69)' }}></i></span>
                     </div>
                 ),
                 style: {
@@ -159,7 +207,7 @@ export class Datatable extends Component {
         return (
             <Fragment>
                 <ReactTable
-                    data={myData}
+                    data={newData}
                     columns={columns}
                     defaultPageSize={pageSize}
                     className={myClass}
