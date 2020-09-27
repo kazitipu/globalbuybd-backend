@@ -19,22 +19,22 @@ export const MENUITEMS = [
     {
         title: 'Products', icon: Box, type: 'sub', active: false, children: [
             {
-                title: 'Physical', type: 'sub', active: false, children: [
-                    { path: '/products/physical/category', title: 'Category', type: 'link' },
-                    { path: '/products/physical/sub-category', title: 'Sub Category', type: 'link' },
-                    { path: '/products/physical/product-list', title: 'Product List', type: 'link' },
-                    { path: '/products/physical/product-detail', title: 'Product Detail', type: 'link' },
+                title: 'in stock', type: 'sub', active: false, children: [
+                    { path: '/products/physical/category', title: 'Product List', type: 'link' },
+                    // { path: '/products/physical/sub-category', title: 'Sub Category', type: 'link' },
+                    // { path: '/products/physical/product-list', title: 'Product grid', type: 'link' },
+                    // { path: '/products/physical/product-detail', title: 'Product Detail', type: 'link' },
                     { path: '/products/physical/add-product', title: 'Add Product', type: 'link' },
                 ]
             },
-            {
-                title: 'digital', type: 'sub', active: false, children: [
-                    { path: '/products/digital/digital-category', title: 'Category', type: 'link' },
-                    { path: '/products/digital/digital-sub-category', title: 'Sub Category', type: 'link' },
-                    { path: '/products/digital/digital-product-list', title: 'Product List', type: 'link' },
-                    { path: '/products/digital/digital-add-product', title: 'Add Product', type: 'link' },
-                ]
-            },
+            // {
+            //     title: 'digital', type: 'sub', active: false, children: [
+            //         { path: '/products/digital/digital-category', title: 'Category', type: 'link' },
+            //         { path: '/products/digital/digital-sub-category', title: 'Sub Category', type: 'link' },
+            //         { path: '/products/digital/digital-product-list', title: 'Product List', type: 'link' },
+            //         { path: '/products/digital/digital-add-product', title: 'Add Product', type: 'link' },
+            //     ]
+            // },
         ]
     },
     {
@@ -55,15 +55,15 @@ export const MENUITEMS = [
             { path: '/pages/create-page', title: 'Create Page', type: 'link' },
         ]
     },
-    {
-        title: 'Media', path: '/media', icon: Camera, type: 'link', active: false
-    },
-    {
-        title: 'Menus', icon: AlignLeft, type: 'sub', active: false, children: [
-            { path: '/menus/list-menu', title: 'List Menu', type: 'link' },
-            { path: '/menus/create-menu', title: 'Create Menu', type: 'link' },
-        ]
-    },
+    // {
+    //     title: 'Media', path: '/media', icon: Camera, type: 'link', active: false
+    // },
+    // {
+    //     title: 'Menus', icon: AlignLeft, type: 'sub', active: false, children: [
+    //         { path: '/menus/list-menu', title: 'List Menu', type: 'link' },
+    //         { path: '/menus/create-menu', title: 'Create Menu', type: 'link' },
+    //     ]
+    // },
     {
         title: 'Users', icon: UserPlus, type: 'sub', active: false, children: [
             { path: '/users/list-user', title: 'User List', type: 'link' },
@@ -95,6 +95,6 @@ export const MENUITEMS = [
         title: 'Invoice',path:'/invoice', icon: Archive, type: 'link', active: false
     },
     {
-        title: 'Login',path:'/auth/login', icon: LogIn, type: 'link', active: false
+        title: 'Login',path:'/', icon: LogIn, type: 'link', active: false
     }
 ]

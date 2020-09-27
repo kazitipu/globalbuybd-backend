@@ -51,12 +51,11 @@ export class Login extends Component {
                                 <div className="col-md-7 p-0 card-right">
                                     <div className="card tab2-card">
                                         <div className="card-body">
-                                            <LoginTabset />
+                                            <LoginTabset setCurrentAdmin={this.props.setCurrentAdmin} currentAdmin={this.props.currentAdmin}/>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {/* <a href="https://react.pixelstrap.com/multikart" target="_blank" className="btn btn-primary back-btn"><ArrowLeft />back</a> */}
                         </div>
                     </div>
                 </div>

@@ -2,13 +2,20 @@ import React, { Component, Fragment } from 'react';
 import { Tabs, TabList, TabPanel, Tab } from 'react-tabs';
 import { User, Unlock } from 'react-feather';
 import { withRouter } from 'react-router-dom';
+import {auth,createAdminProfileDocument, firestore} from '../../firebase/firebase.utils'
 
 export class LoginTabset extends Component {
     constructor(props) {
         super(props);
         this.state = {
             activeShow: true,
-            startDate: new Date()
+            startDate: new Date(),
+            loginEmail:'',
+            loginPassword:'',
+            registerEmail:'',
+            registerPassword:'',
+            registerConfirmPassword:'',
+            registerStatus:''
         }
         this.handleChange = this.handleChange.bind(this)
     }
@@ -17,15 +24,70 @@ export class LoginTabset extends Component {
         document.querySelector(".nav-link").classList.remove('show');
         event.target.classList.add('show');
     }
-    handleChange(date) {
+    handleChange = (event) => {
+        event.preventDefault()
+        const {name,value} = event.target
         this.setState({
-            startDate: date
+            [name]: value,
         });
     }
 
-    routeChange = () => {
-        this.props.history.push(`${process.env.PUBLIC_URL}/dashboard`);
-      }
+    handleLoginSubmit = async (event) => {
+        event.preventDefault();
+    
+        const { loginEmail, loginPassword } = this.state;
+    
+        try {
+          await auth.signInWithEmailAndPassword(loginEmail, loginPassword);
+          this.setState({ loginEmail: '', loginPassword: '' });
+          auth.onAuthStateChanged(async (userAuth) => {
+            if (userAuth) {
+              const adminRef = firestore.doc(`admins/${userAuth.uid}`);
+              const snapShot = await adminRef.get()
+              if (snapShot.exists){
+                  this.props.setCurrentAdmin({ id: snapShot.id, ...snapShot.data() })
+                  this.props.history.push(`${process.env.PUBLIC_URL}/dashboard`)
+              }
+        }else{
+            alert('your email is not authenticated')
+        }
+        });
+          this.props.history.push(`${process.env.PUBLIC_URL}/dashboard`)
+        } catch (error) {
+          alert(error);
+     }
+    };
+
+    handleRegisterSubmit = async (event) =>{
+        event.preventDefault()
+        const {registerEmail,registerPassword,registerConfirmPassword,registerStatus,registerDisplayName} = this.state
+        if (registerPassword !== registerConfirmPassword) {
+            alert("passwords don't match");
+            return;
+          }
+      
+          try {
+            const { user } = await auth.createUserWithEmailAndPassword(
+            registerEmail,
+            registerPassword
+            );
+      
+            await createAdminProfileDocument(user, { name:registerDisplayName,status:registerStatus });
+      
+            this.setState({
+              registerDisplayName: '',
+              registerEmail: '',
+              registerPassword: '',
+              registerConfirmPassword: ''
+            });
+            console.log(this.props.currentAdmin)
+            this.props.history.push('/dashboard')
+          } catch (error) {
+            alert(error);
+          }
+
+    }
+
     render() {
         return (
             <div>
@@ -33,16 +95,16 @@ export class LoginTabset extends Component {
                     <Tabs>
                         <TabList className="nav nav-tabs tab-coupon" >
                             <Tab className="nav-link" onClick={(e) => this.clickActive(e)}><User />Login</Tab>
-                            <Tab className="nav-link" onClick={(e) => this.clickActive(e)}><Unlock />Register</Tab>
+                            {this.props.currentAdmin?<Tab className="nav-link" onClick={(e) => this.clickActive(e)}><Unlock />Register</Tab>:null }
                         </TabList>
 
                         <TabPanel>
-                            <form className="form-horizontal auth-form">
+                            <form className="form-horizontal auth-form" onSubmit={this.handleLoginSubmit}>
                                 <div className="form-group">
-                                    <input required="" name="login[username]" type="email" className="form-control" placeholder="Username" id="exampleInputEmail1" />
+                                    <input required="" name="loginEmail" value={this.state.loginEmail} onChange={this.handleChange} type="email" className="form-control" placeholder="Username" id="exampleInputEmail1" />
                                 </div>
                                 <div className="form-group">
-                                    <input required="" name="login[password]" type="password" className="form-control" placeholder="Password" />
+                                    <input required="" name="loginPassword" value={this.state.loginPassword} onChange={this.handleChange} type="password" className="form-control" placeholder="Password" />
                                 </div>
                                 <div className="form-terms">
                                     <div className="custom-control custom-checkbox mr-sm-2">
@@ -54,9 +116,9 @@ export class LoginTabset extends Component {
                                     </div>
                                 </div>
                                 <div className="form-button">
-                                    <button className="btn btn-primary" type="submit"  onClick={() => this.routeChange()}>Login</button>
+                                    <button className="btn btn-primary" type="submit">Login</button>
                                 </div>
-                                <div className="form-footer">
+                                {/* <div className="form-footer">
                                     <span>Or Login up with social platforms</span>
                                     <ul className="social">
                                         <li><a className="fa fa-facebook" href=""></a></li>
@@ -64,19 +126,25 @@ export class LoginTabset extends Component {
                                         <li><a className="fa fa-instagram" href=""></a></li>
                                         <li><a className="fa fa-pinterest" href=""></a></li>
                                     </ul>
-                                </div>
+                                </div> */}
                             </form>
                         </TabPanel>
-                        <TabPanel>
-                            <form className="form-horizontal auth-form">
+                        {this.props.currentAdmin?(<TabPanel>
+                            <form className="form-horizontal auth-form" onSubmit={this.handleRegisterSubmit}>
                                 <div className="form-group">
-                                    <input required="" name="login[username]" type="email" className="form-control" placeholder="Username" id="exampleInputEmail12" />
+                                    <input required="" name="registerDisplayName" value={this.state.registerDisplayName} onChange={this.handleChange} type="text" className="form-control" placeholder="name" />
                                 </div>
                                 <div className="form-group">
-                                    <input required="" name="login[password]" type="password" className="form-control" placeholder="Password" />
+                                    <input required="" name="registerEmail" value={this.state.registerEmail} onChange={this.handleChange} type="email" className="form-control" placeholder="Email" id="exampleInputEmail12" />
                                 </div>
                                 <div className="form-group">
-                                    <input required="" name="login[password]" type="password" className="form-control" placeholder="Confirm Password" />
+                                    <input required="" name="registerPassword" value={this.state.registerPassword} onChange={this.handleChange} type="password" className="form-control" placeholder="Password" />
+                                </div>
+                                <div className="form-group">
+                                    <input required="" name="registerConfirmPassword" value={this.state.registerConfirmPassword} onChange={this.handleChange} type="password" className="form-control" placeholder="Confirm Password" />
+                                </div>
+                                <div className="form-group">
+                                    <input required="" name="registerStatus" value={this.state.registerStatus} onChange={this.handleChange} type="text" className="form-control" placeholder="admin status" />
                                 </div>
                                 <div className="form-terms">
                                     <div className="custom-control custom-checkbox mr-sm-2">
@@ -88,9 +156,9 @@ export class LoginTabset extends Component {
                                     </div>
                                 </div>
                                 <div className="form-button">
-                                    <button className="btn btn-primary" type="submit" onClick={() => this.routeChange()}>Register</button>
+                                    <button className="btn btn-primary" type="submit">Register</button>
                                 </div>
-                                <div className="form-footer">
+                                {/* <div className="form-footer">
                                     <span>Or Sign up with social platforms</span>
                                     <ul className="social">
                                         <li><a className="fa fa-facebook" href=""></a></li>
@@ -98,9 +166,9 @@ export class LoginTabset extends Component {
                                         <li><a className="fa fa-instagram" href=""></a></li>
                                         <li><a className="fa fa-pinterest" href=""></a></li>
                                     </ul>
-                                </div>
+                                </div> */}
                             </form>
-                        </TabPanel>
+                        </TabPanel>):null}
                     </Tabs>
                 </Fragment>
             </div>

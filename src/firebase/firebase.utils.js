@@ -28,17 +28,17 @@ export const createAdminProfileDocument = async (userAuth, additionalData) => {
 
   const snapShot = await adminRef.get();
   if (!snapShot.exists) {
-    const { displayName, email } = userAuth;
+    const { name, email } = userAuth;
     const createdAt = new Date();
     try {
       await adminRef.set({
-        displayName,
+        name,
         email,
         createdAt,
         ...additionalData,
       });
     } catch (error) {
-      console.log("error creating user", error.message);
+      console.log("error creating admin", error.message);
     }
   }
   return adminRef;
