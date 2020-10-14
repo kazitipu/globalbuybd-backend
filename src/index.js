@@ -13,7 +13,8 @@ import Category from './components/products/physical/category';
 import Sub_category from './components/products/physical/sub-category';
 import Product_list from './components/products/physical/product-list';
 import Add_product from './components/products/physical/add-product';
-import Update_product from './components/products/physical/update-prodcut'
+import Add_Aliexpress_product from './components/products/physical/add-aliexpress-product'
+import Update_product from './components/products/physical/update-product'
 import Product_detail from './components/products/physical/product-detail';
 
 //Product Digital
@@ -75,12 +76,13 @@ class Root extends Component {
                         <App>
                             <Route exact path={`${process.env.PUBLIC_URL}/dashboard`} component={()=>currentAdmin?<Dashboard/>:<Redirect to='/'/>} />
                                 
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/physical/category`} component={()=>currentAdmin? <Category/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/products/physical/category`} component={(props)=><Category history={props.history}/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/sub-category`} component={()=>currentAdmin? <Sub_category/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/product-list`} component={()=>currentAdmin? <Product_list/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/product-detail`} component={()=>currentAdmin? <Product_detail/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-product`} component={()=>currentAdmin? <Add_product/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-product/:id`} component={()=>currentAdmin? <Update_product/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-aliexpress-product`} component={()=> <Add_Aliexpress_product/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-product/:id`} component={(props)=><Update_product {...props}/>} />
 
                             <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-category`} component={()=>currentAdmin?<Digital_category/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-sub-category`} component={()=>currentAdmin?<Digital_sub_category/>:<Redirect to='/'/>} />

@@ -4,7 +4,7 @@ import Modal from 'react-responsive-modal';
 import 'react-toastify/dist/ReactToastify.css';
 import data from '../../../assets/data/category';
 import Datatable from '../../common/datatable';
-import {getAllProducts} from '../../../firebase/firebase.utils'
+import {getAllProducts, getAllAliProducts} from '../../../firebase/firebase.utils'
 import {Link} from 'react-router-dom'
 
 export class Category extends Component {
@@ -24,12 +24,15 @@ export class Category extends Component {
     // };
     componentDidMount=async()=>{
         const allProducts = await getAllProducts()
-        this.setState({allProducts,})
+        const allAliProducts = await getAllAliProducts()
+        
+        this.setState({allProducts:[...allProducts,...allAliProducts]})
     }
 
     render() {
         const { open,allProducts } = this.state;
         console.log(allProducts)
+        console.log(this.props)
         return (
             <Fragment>
                 <Breadcrumb title="Products List" parent="Physical" />

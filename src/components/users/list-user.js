@@ -2,11 +2,24 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom'
 import Breadcrumb from '../common/breadcrumb';
 import data from '../../assets/data/listUser';
-import Datatable from '../common/datatable'
-
+import Datatable from './usersDatatable'
+import {getAllUsers} from '../../firebase/firebase.utils'
 
 export class List_user extends Component {
+    constructor(props){
+        super(props)
+        this.state ={
+            allUsers:[]
+        }
+    }
+
+    componentDidMount=async()=>{
+        const allUsers = await getAllUsers()
+        this.setState({allUsers})
+    }
+
     render() {
+        const {allUsers} = this.state
         return (
             <Fragment>
                 <Breadcrumb title="User List" parent="Users" />
@@ -22,8 +35,8 @@ export class List_user extends Component {
                             <div className="clearfix"></div>
                             <div id="batchDelete" className="category-table user-list order-table coupon-list-delete">
                                 <Datatable
-                                    multiSelectOption={true}
-                                    myData={data}
+                                    multiSelectOption={false}
+                                    myData={allUsers}
                                     pageSize={10}
                                     pagination={true}
                                     class="-striped -highlight"

@@ -44,15 +44,15 @@ export class Datatable extends Component {
         if (myData.length > 0){
             const newData =[]
             myData.forEach(product =>{
-                delete product.dummyimgs
-                delete product.description
+                
+            //  this is not affecting my output see line 104   
                 newData.push({
-                    code: product.product_code,
-                    image: <img src={`${product.mainImg}`} style={{width:50,height:50}}/>,
-                    name: product.product_name,
-                    price: product.price,
-                    status: this.getStatus(product.quantity),
-                    category: product.category
+                    code: product.id,
+                    image: <img src={``} style={{width:50,height:50}}/>,
+                    name: product.name,
+                    price: `TK${product.salePrice}`,
+                    status: product.stock?this.getStatus(product.stock):this.getStatus(product.totalAvailableQuantity),
+                    category: product.category? product.category:product.categoryId
                 })
                 
             });
@@ -94,22 +94,25 @@ export class Datatable extends Component {
 
     render() {
         const { pageSize, myClass, multiSelectOption, pagination } = this.props;
+        console.log(this.props)
         const { myData } = this.props
         console.log(myData)
         const newData = []
-        myData.forEach(product =>{
-            delete product.dummyimgs
-            delete product.description
-            console.log(product.mainImg)
-            newData.push({
-                code: product.product_code,
-                image: <img src={`${product.mainImg}`} style={{width:50,height:50}}/>,
-                name: product.product_name,
-                price: product.price,
-                status: this.getStatus(product.quantity),
-                category: product.category
-            })   
-        });
+        if (myData.length >0){
+            myData.forEach(product =>{
+                const image = product.pictures[0]
+                console.log(product.pictures[0])
+                newData.push({
+                    code: product.id,
+                    image: <img src={`${image}`} style={{width:50,height:50}}/>,
+                    name: product.name,
+                    price: `TK${product.salePrice}`,
+                    status: product.stock?this.getStatus(product.stock):this.getStatus(product.totalAvailableQuantity),
+                    category: product.category? product.category:product.categoryId
+                })   
+            })
+        }
+       ;
 
         const columns = [];
         for (var key in newData[0]) {

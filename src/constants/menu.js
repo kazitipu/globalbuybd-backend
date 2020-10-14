@@ -19,12 +19,13 @@ export const MENUITEMS = [
     {
         title: 'Products', icon: Box, type: 'sub', active: false, children: [
             {
-                title: 'in stock', type: 'sub', active: false, children: [
+                title: 'in stock/pre order', type: 'sub', active: false, children: [
                     { path: '/products/physical/category', title: 'Product List', type: 'link' },
                     // { path: '/products/physical/sub-category', title: 'Sub Category', type: 'link' },
                     // { path: '/products/physical/product-list', title: 'Product grid', type: 'link' },
                     // { path: '/products/physical/product-detail', title: 'Product Detail', type: 'link' },
                     { path: '/products/physical/add-product', title: 'Add Product', type: 'link' },
+                    { path: '/products/physical/add-aliexpress-product', title: 'Add AliProduct', type: 'link' },
                 ]
             },
             // {
