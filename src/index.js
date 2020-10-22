@@ -4,8 +4,10 @@ import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './index.scss';
 import App from './components/app';
 import { ScrollContext } from 'react-router-scroll-4';
+import { Provider } from 'react-redux';
 
 // Components
+import store from './store';
 import Dashboard from './components/dashboard';
 
 // Products physical
@@ -25,21 +27,29 @@ import Digital_add_pro from './components/products/digital/digital-add-pro';
 
 //Sales
 import Orders from './components/sales/orders';
-import Transactions_sales from './components/sales/transactions-sales';
+import PendingOrders from './components/sales/pendingOrders'
+import PaymentApproved from './components/sales/paymentApproved'
+import Ordered from './components/sales/ordered'
+import ChinaWarehouse from './components/sales/chinaWarehouse'
+import InShipment from './components/sales/inShipment'
+import InStock from './components/sales/inStock'
+import Delivered from './components/sales/delivered'
+import UpdateOrder from './components/sales/updateOrder'
+
 //Coupons
-import ListCoupons from './components/coupons/list-coupons';
-import Create_coupons from './components/coupons/create-coupons';
+import UnverifiedPayments from './components/payments/unVerifiedPayments';
+import VerifiedPayments from './components/payments/verifiedPayments';
+import Create_coupons from './components/payments/create-coupons';
 
 //Pages
-import ListPages from './components/pages/list-page';
+import ProductToOrder from './components/pages/product-to-order';
 import Create_page from './components/pages/create-page';
 import Media from './components/media/media';
 import List_menu from './components/menus/list-menu';
 import Create_menu from './components/menus/create-menu';
 import List_user from './components/users/list-user';
 import Create_user from './components/users/create-user';
-import List_vendors from './components/vendors/list-vendors';
-import Create_vendors from './components/vendors/create.vendors';
+import ListSuppliers from './components/suppliers/list-suppliers';
 import Translations from './components/localization/translations';
 import Rates from './components/localization/rates';
 import Taxes from './components/localization/taxes';
@@ -57,16 +67,17 @@ class Root extends Component {
         this.state ={
             currentAdmin: null
         }
-
     }
 
     setCurrentAdmin= (adminObj) =>{
         this.setState({currentAdmin:adminObj})
         console.log(this.state.currentAdmin)
     }
+
     render() {
         const {currentAdmin} = this.state;
         return (
+            <Provider store={store}>
             <BrowserRouter basename={'/'}>
                 <ScrollContext>
                     <Switch>
@@ -84,17 +95,22 @@ class Root extends Component {
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-aliexpress-product`} component={()=> <Add_Aliexpress_product/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/add-product/:id`} component={(props)=><Update_product {...props}/>} />
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-category`} component={()=>currentAdmin?<Digital_category/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-sub-category`} component={()=>currentAdmin?<Digital_sub_category/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-product-list`} component={()=>currentAdmin?<Digital_pro_list/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/products/digital/digital-add-product`} component={()=>currentAdmin?<Digital_add_pro/>:<Redirect to='/'/>} />
+                         
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/sales/orders`} component={()=>currentAdmin?<Orders/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/sales/transactions`} component={()=>currentAdmin?<Transactions_sales/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/coupons/list-coupons`} component={()=>currentAdmin?<ListCoupons/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/coupons/create-coupons`} component={()=>currentAdmin?<Create_coupons/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/orders`} component={Orders} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/orders/update-status/:orderId`} component={(props)=> <UpdateOrder {...props}/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/order_pending`} component={(props)=><PendingOrders {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/payment_approved`} component={(props)=><PaymentApproved {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/ordered`} component={(props)=><Ordered {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/china_warehouse`} component={(props)=><ChinaWarehouse {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/in-shipping`} component={(props)=><InShipment {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/in_stock`} component={(props)=><InStock {...props} />} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/sales/delivered`} component={(props)=><Delivered {...props} />} />
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/pages/list-page`} component={()=>currentAdmin?<ListPages/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/payments/unVerified`} component={UnverifiedPayments} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/payments/verified`} component={VerifiedPayments} />
+
+                            <Route exact path={`${process.env.PUBLIC_URL}/pages/product-to-order`} component={ProductToOrder} />
                             <Route exact path={`${process.env.PUBLIC_URL}/pages/create-page`} component={()=>currentAdmin?<Create_page/>:<Redirect to='/'/>} />
 
                             {/* <Route exact epath={`${process.env.PUBLIC_URL}/media`} component={Media} /> */}
@@ -102,11 +118,11 @@ class Root extends Component {
                             <Route exact path={`${process.env.PUBLIC_URL}/menus/list-menu`} component={()=>currentAdmin?<List_menu/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/menus/create-menu`} component={()=>currentAdmin?<Create_menu/>:<Redirect to='/'/>} />
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/users/list-user`} component={()=>currentAdmin?<List_user/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/users/list-user`} component={List_user} />
                             <Route exact path={`${process.env.PUBLIC_URL}/users/create-user`} component={()=>currentAdmin?<Create_user/>:<Redirect to='/'/>} />
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/vendors/list_vendors`} component={()=>currentAdmin?<List_vendors/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/vendors/create-vendors`} component={()=>currentAdmin?<Create_vendors/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/suppliers/list_suppliers`} component={()=><ListSuppliers/>} />
+                            
 
                             <Route exact path={`${process.env.PUBLIC_URL}/localization/transactions`} component={()=>currentAdmin?<Translations/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/localization/currency-rates`} component={()=>currentAdmin?<Rates/>:<Redirect to='/'/>} />
@@ -124,6 +140,7 @@ class Root extends Component {
                     </Switch>
                 </ScrollContext>
             </BrowserRouter>
+            </Provider>
         )
     }
 }

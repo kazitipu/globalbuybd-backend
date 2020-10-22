@@ -4,6 +4,7 @@ import Notification from './notification';
 import User_menu from './user-menu';
 import Language from './language';
 import { AlignLeft, Maximize2, Bell, MessageSquare, MoreHorizontal } from 'react-feather';
+import {connect} from 'react-redux'
 
 //images
 import logo from '../../../assets/images/dashboard/14.png'
@@ -63,6 +64,12 @@ export class Header extends Component {
         }
     }
     render() {
+        var totalNotifacationCount =''
+        if (this.props.pendingOrders && this.props.unverifiedPayments){
+            totalNotifacationCount += (this.props.pendingOrders.length+this.props.unverifiedPayments.length)
+        }
+     
+        
         return (
             <Fragment>
                 {/* open */}
@@ -91,8 +98,8 @@ export class Header extends Component {
                                     <Language />
                                 </li>
 
-                                <li className="onhover-dropdown"><Bell /><span className="badge badge-pill badge-primary pull-right notification-badge">3</span><span className="dot"></span>
-                                    <Notification />
+                                <li className="onhover-dropdown"><Bell /><span className="badge badge-pill badge-primary pull-right notification-badge">{totalNotifacationCount}</span><span className="dot"></span>
+                                    <Notification totalNotifacationCount={totalNotifacationCount} />
                                 </li>
                                 <li><a onClick={this.showRightSidebar}><MessageSquare /><span className="dot"></span></a></li>
                                 <User_menu />
@@ -106,4 +113,18 @@ export class Header extends Component {
     }
 }
 
-export default Header
+const mapStateToProps =(state)=>{
+    const unVerifiedPaymentsArray=[]
+    state.payments.payments.forEach((payment)=>{ 
+        payment.payments.forEach(inPayment=>{
+        if (inPayment.paymentStatus === 'unVerified'){
+            unVerifiedPaymentsArray.push(inPayment)
+        }
+        })
+    })
+    return{
+    pendingOrders:state.orders.orders.filter(order=>order.status ==='order_pending'),
+    unverifiedPayments:unVerifiedPaymentsArray,
+}}
+
+export default connect(mapStateToProps)(Header);

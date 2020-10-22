@@ -29,9 +29,6 @@ export class List_user extends Component {
                             <h5>User Details</h5>
                         </div>
                         <div className="card-body">
-                            <div className="btn-popup pull-right">
-                                <Link to="/users/create-user" className="btn btn-secondary">Create User</Link>
-                            </div>
                             <div className="clearfix"></div>
                             <div id="batchDelete" className="category-table user-list order-table coupon-list-delete">
                                 <Datatable

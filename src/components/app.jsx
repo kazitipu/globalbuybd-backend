@@ -3,6 +3,9 @@ import Sidebar from './common/sidebar_components/sidebar';
 import Right_sidebar from './common/right-sidebar';
 import Footer from './common/footer';
 import Header from './common/header_components/header';
+import {getAllOrders, getAllPayments,getAllAdmins} from '../firebase/firebase.utils'
+import {connect} from 'react-redux'
+import {setAllOrders, setAllPayments,setAllAdmins} from '../actions'
 
 export class App extends Component {
     constructor(props){
@@ -11,6 +14,16 @@ export class App extends Component {
             ltr:true,
             divName:'RTL',
         }
+    }
+
+    componentDidMount=async()=>{
+        const allOrdersArray = await getAllOrders()
+        const allPaymentsArray = await getAllPayments()
+        const allAdminsArray = await getAllAdmins()
+        this.props.setAllOrders(allOrdersArray)
+        this.props.setAllPayments(allPaymentsArray)
+        this.props.setAllAdmins(allAdminsArray)
+
     }
     ChangeRtl(divName){
         if(divName === 'RTL') {
@@ -41,4 +54,4 @@ export class App extends Component {
     }
 }
 
-export default App;
+export default connect(null,{setAllOrders,setAllPayments,setAllAdmins})(App);

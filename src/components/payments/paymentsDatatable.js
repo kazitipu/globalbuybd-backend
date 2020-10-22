@@ -3,7 +3,10 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {deleteProduct} from './../../firebase/firebase.utils'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Popover from 'react-bootstrap/Popover'
+
+import {deletePayment,updatePaymentStatus,updateOrderAmount} from '../../firebase/firebase.utils'
 
 
 export class Datatable extends Component {
@@ -11,8 +14,13 @@ export class Datatable extends Component {
         super(props)
         this.state = {
             checkedValues: [],
-            myData: this.props.myData
+            myData: this.props.myData,
+            status:'unVerified'
         }
+    }
+
+    componentDidMount =()=>{
+        console.log(this.props)
     }
 
     selectRow = (e, i) => {
@@ -41,24 +49,24 @@ export class Datatable extends Component {
 
     renderEditable = (cellInfo) => {
         const { myData } = this.props
-        if (myData.length > 0){
+        if (myData.length >0){
             const newData =[]
-            myData.forEach(product =>{
-                
-            //  this is not affecting my output see line 104   
+            myData.forEach(payment =>{
+               
                 newData.push({
-                    code: product.id,
-                    image: <img src={``} style={{width:50,height:50}}/>,
-                    name: product.name,
-                    price: `TK${product.salePrice}`,
-                    status: product.stock?this.getStatus(product.stock):this.getStatus(product.totalAvailableQuantity),
-                    category: product.category? product.category:product.categoryId
-                })
-                
+                    orderId:payment.orderId,
+                    amount:`Tk ${payment.amount}`,
+                    paymentId:payment.paymentId,
+                    paymentVia:payment.paymentVia,
+                    paidAt:this.toDateTime(payment.paidAt.seconds)
+
+
+                })     
             });
             return (
                 <div
                     style={{ backgroundColor: "#fafafa" }}
+                   
                     onBlur={e => {
                         const data = [...newData];
                         data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
@@ -79,16 +87,29 @@ export class Datatable extends Component {
     Capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
-
-    getStatus =(productQuantity) =>{
-        if (productQuantity < 10){
-            return (<i className="fa fa-circle font-danger f-12" />)
-        }else if (productQuantity >50){
-            return (<i className="fa fa-circle font-success f-12" />)
-        }else {
-            return (<i className="fa fa-circle font-warning f-12" />)
-        }
+    toDateTime=(secs)=> {
+        var t = new Date(1970, 0, 1); // Epoch
+        t.setSeconds(secs);
+        return t;
     }
+    handleChange =(event,orderId,paymentId,amount) =>{
+        const {name,value} =event.target;
+        this.setState({ [name]:value },async()=>{ 
+            console.log(this.state.status)
+            await updatePaymentStatus({paymentStatus:this.state.status,orderId:orderId,paymentId:paymentId})
+            this.props.handlePaymentStatusChange({paymentStatus:this.state.status,orderId:orderId,paymentId:paymentId})
+            await updateOrderAmount({orderId:orderId, amount:amount})
+
+            this.setState({ checkedValues: [],
+                myData: this.props.myData,
+                status:'unVerified'})
+        });       
+    }
+
+  
+
+
+
 
     render() {
         const { pageSize, myClass, multiSelectOption, pagination } = this.props;
@@ -96,19 +117,20 @@ export class Datatable extends Component {
         const { myData } = this.props
         console.log(myData)
         const newData = []
-        if (myData.length >0){
-            myData.forEach(product =>{
-                const image = product.pictures[0]
-                console.log(product.pictures[0])
+        if (myData.length >0 ){
+            myData.forEach(payment =>{
+               
                 newData.push({
-                    code: product.id,
-                    image: <img src={`${image}`} style={{width:50,height:50}}/>,
-                    name: product.name,
-                    price: `TK${product.salePrice}`,
-                    status: product.stock?this.getStatus(product.stock):this.getStatus(product.totalAvailableQuantity),
-                    category: product.category? product.category:product.categoryId
-                })   
-            })
+                    orderId:payment.orderId,
+                    paymentId:payment.paymentId,
+                    amount:payment.amount,
+                    paymentVia:payment.paymentVia,
+                    paidAt:this.toDateTime(payment.paidAt.seconds),
+                    image:<a target="_blank" href={payment.paymentImage}><button className='btn btn-primary'>view</button></a>
+
+
+                })     
+        });
         }
        ;
 
@@ -119,18 +141,16 @@ export class Datatable extends Component {
             if (key == "image") {
                 editable = null;
             }
-            if (key == "status") {
+            if (key == "orderId") {
                 editable = null;
             }
-            if (key === "avtar") {
+            if (key === "amount") {
                 editable = null;
             }
-            if (key === "vendor") {
+            if (key === "paymentVia") {
                 editable = null;
             }
-            if(key === "order_status"){
-                editable = null;
-            }
+          
 
             columns.push(
                 {
@@ -138,7 +158,7 @@ export class Datatable extends Component {
                     accessor: key,
                     Cell: editable,
                     style: {
-                        textAlign: 'center'
+                        textAlign: 'center',
                     }
                 });
         }
@@ -149,7 +169,7 @@ export class Datatable extends Component {
                     Header: <button className="btn btn-danger btn-sm btn-delete mb-0 b-r-4"
                         onClick={
                             (e) => {
-                                if (window.confirm('Are you sure you wish to delete this item?'))
+                                if (window.confirm('Are you sure you wish to delete this user?'))
                                     this.handleRemoveRow()
                             }}>Delete</button>,
                     id: 'delete',
@@ -175,6 +195,46 @@ export class Datatable extends Component {
         } else {
             columns.push(
                 {
+                    Header: <b>Verify</b>,
+                    id: 'update',
+                    accessor: str => "update",
+                    Cell: (row) => (
+                  <div>
+                      {
+                          this.props.match.path === "/payments/verified"?<div style={{padding:'2px',backgroundColor:'green',textAlign:'center',color:'white'}}>verified</div>:<OverlayTrigger
+                          trigger="click"
+                          placement='bottom'
+                          overlay={
+                            <Popover id={`popover-positioned-bottom`}   style={{minWidth:'15%'}}>
+                              <Popover.Title as="h3">verify payment</Popover.Title>
+                              <Popover.Content>
+                              <form className="needs-validation add-product-form">
+                                   <div className="form-group mb-3 row" style={{padding:'1rem'}}>
+                                      <select className="form-control digits" id="exampleFormControlSelect2" name="status" value={this.state.status} onChange={(e)=>this.handleChange(e,row.original.orderId,row.original.paymentId,row.original.amount)}>
+                                          <option>unVerified</option>
+                                          <option>Verified</option>   
+                                      </select>
+                                      <div className="valid-feedback">Looks good!</div>
+                                  </div>
+                              </form>
+                              </Popover.Content>
+                            </Popover>
+                          }
+                        >
+                          <button className="btn btn-primary" 
+                                >Verify</button>
+                        </OverlayTrigger>
+
+                      }
+                    
+                  </div>
+                ),
+                style: {
+                    textAlign: 'center'
+                },
+                sortable: false
+            },
+                {
                     Header: <b>Action</b>,
                     id: 'delete',
                     accessor: str => "delete",
@@ -185,16 +245,17 @@ export class Datatable extends Component {
                                 data.splice(row.index, 1);
                                 this.setState({ myData: data });
                                 console.log(row)
-                                deleteProduct(row.original.code)
+                                deletePayment(row.original.orderId)
                                 
                                 toast.success("Successfully Deleted !")
 
                             }}>
-                                <i className="fa fa-trash" style={{ width: 35, fontSize: 20, padding: 11, color: '#e4566e' }}
+                                <i className="fa fa-trash" style={{ width: 35, fontSize: 20, padding: 11, color: '#e4566e',cursor:'pointer' }}
                                 ></i>
                             </span>
+                          
 
-                        <span onClick ={()=>this.props.history.push(`/products/physical/add-product/${row.original.code}`)}><i className="fa fa-pencil" style={{ width: 35, fontSize: 20, padding: 11,color:'rgb(40, 167, 69)' }}></i></span>
+                        
                     </div>
                 ),
                 style: {
@@ -202,6 +263,7 @@ export class Datatable extends Component {
                 },
                 sortable: false
             }
+            
         )
         }
 

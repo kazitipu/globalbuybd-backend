@@ -35,6 +35,11 @@ export const createAdminProfileDocument = async (userAuth, additionalData) => {
         name,
         email,
         createdAt,
+        pending_orders:[],
+        balance:'',
+        used_balance:'',
+        successfully_delivered_orders:[],
+        remaining_balance:'',
         ...additionalData,
       });
     } catch (error) {
@@ -274,4 +279,217 @@ export const deleteUser = async(id)=>{
   }catch(error){
     alert(error)
   }
+}
+
+// Orders management (get all orders)
+
+export const getAllOrders = async()=>{
+  const ordersCollectionRef = firestore.collection('orders')
+  try{
+    const orders =await ordersCollectionRef.get()
+    const ordersArray = []
+    orders.forEach((doc)=>{
+      console.log(doc.id, " => ", doc.data())
+      ordersArray.push({orderId:doc.id, ...doc.data()})
+    })
+    return ordersArray;
+  }catch(error){
+    alert(error)
+  }
+}
+
+// export const updateAllOrders= async ()=> {
+//   const collection = await firestore.collection("orders").get()
+//   collection.forEach(doc=> {
+//     doc.ref
+//       .update({
+//         ...doc.data(), status: 'order_pending'
+//       })
+//   })
+// }
+
+export const deleteOrder = async(id)=>{
+  const orderRef = firestore.doc(`orders/${id}`)
+  try{
+    await orderRef.delete()
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const getSingleOrder = async (id) =>{
+  const orderRef = firestore.doc(`orders/${id}`)
+  try {
+    const order = await orderRef.get()
+    return order.data()
+  }
+ 
+  catch(error){
+  alert(error)
+}
+}
+
+export const updateOrder = async (orderObj) =>{
+  const orderRef = firestore.doc(`orders/${orderObj.orderId}`)
+    const order = await orderRef.get()
+      try{
+        await orderRef.update({...order.data(),status:orderObj.status,paymentStatus:{...order.data().paymentStatus,paid:orderObj.paid}})
+      }catch(error){
+        alert(error)
+      }
+}
+
+
+export const updateMultipleOrder = async (orderIdArray, status) =>{
+   orderIdArray.forEach(async orderId=>{
+    const orderRef = firestore.doc(`orders/${orderId}`)
+    const order = await orderRef.get()
+      try{
+
+        return await orderRef.update({...order.data(),status:status})
+      }catch(error){
+        alert(error)
+      }
+  })
+}
+
+export const updateMultipleOrderwithOrderTo = async (orderIdArray, status, orderTo)=>{
+  orderIdArray.forEach(async orderId=>{
+    const orderRef = firestore.doc(`orders/${orderId}`)
+    const order = await orderRef.get()
+      try{
+        if (!order.data().orderTo){
+          await orderRef.update({...order.data(),status,orderTo})
+        }else{
+          await orderRef.update({...order.data(),status})
+          alert(`this ${orderId} order is already ordered to another supplier. check ordered products`)
+        }
+        
+      }catch(error){
+        alert(error)
+      }
+  })
+}
+  
+// paymet management 
+export const getAllPayments = async()=>{
+  const paymentsCollectionRef = firestore.collection('payments')
+  try{
+    const payments =await paymentsCollectionRef.get()
+    const paymentsArray = []
+    payments.forEach((doc)=>{
+      console.log(doc.id, " => ", doc.data())
+      paymentsArray.push({uid:doc.id, ...doc.data()})
+    })
+    return paymentsArray;
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const deletePayment = async(orderId)=>{
+  const paymentRef = firestore.doc(`payments/${orderId}`)
+  try{
+    await paymentRef.delete()
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const updatePaymentStatus = async (paymentObj) =>{
+  const paymentRef = firestore.doc(`payments/${paymentObj.orderId}`)
+    const payment = await paymentRef.get()
+    const updatedPaymentObj = payment.data().payments.find(payment=>payment.paymentId == paymentObj.paymentId)
+    updatedPaymentObj.paymentStatus = paymentObj.paymentStatus
+    const newPaymentsArray = payment.data().payments.filter(payment=>payment.paymentId !== paymentObj.paymentId) 
+      try{
+        await paymentRef.update({...payment.data(),payments:[...newPaymentsArray, updatedPaymentObj]})
+      }catch(error){
+        alert(error)
+      }
+}
+
+export const updateOrderAmount = async (paymentObj) =>{
+  const orderRef = firestore.doc(`orders/${paymentObj.orderId}`)
+  try{
+    const order =  await orderRef.get()
+    console.log(order.data())
+    await orderRef.update({ ...order.data(),status:order.data().status==='order_pending'?'payment_approved':order.data().status, paymentStatus:{...order.data().paymentStatus,paid:parseInt(order.data().paymentStatus.paid) +parseInt(paymentObj.amount)}})
+  }catch(error){
+    alert(error)
+  }
+}
+
+// distribute order to managers 
+export const orderProductsFromChina =async (orderIdArray,orderTo)=>{
+   const adminsCollectionRef = firestore.collection('admins')
+   orderIdArray.forEach(async (orderId)=>{
+     const orderRef = firestore.doc(`orders/${orderId}`)
+     try{
+       const order = await orderRef.get()
+       if (!order.data().orderTo){
+        try{
+          const admins =await adminsCollectionRef.get()
+          admins.forEach(doc=>{
+            var adminRef = firestore.doc(`admins/${doc.id}`)
+            if (doc.data().name === orderTo){
+             adminRef.update({...doc.data(),pending_orders:[...doc.data().pending_orders,orderId]})
+            }
+          })
+         }
+        catch(error){
+          alert(error)
+        }
+
+       }else{
+         console.log(`${orderId} is already ordered to another supplier.check ordered item`)
+       }
+     }catch(error){
+       console.log(error)
+     }
+   })
+   
+  
+}
+
+export const productToOrder = async(productsArray) =>{
+  productsArray.forEach(product =>{
+    const productToOrderRef = firestore.doc(`productToOrder/${product.id}`)
+    try{
+      productToOrderRef.set(product)
+    }catch(error){
+      alert(error)
+    }
+
+  })
+  
+}
+
+// admins 
+export const getAllAdmins = async()=>{
+  const adminsCollectionRef = firestore.collection('admins')
+  try{
+    const admins =await adminsCollectionRef.get()
+    const adminsArray = []
+    admins.forEach((doc)=>{
+      console.log(doc.id, " => ", doc.data())
+      adminsArray.push({adminId:doc.id, ...doc.data()})
+    })
+    return adminsArray;
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const rechargeAdmin =async (adminIdArray,balance)=>{
+  adminIdArray.forEach(async(adminId)=>{
+    const adminRef = firestore.doc(`admins/${adminId}`)
+  try{
+    const admin =  await adminRef.get()
+    await adminRef.update({ ...admin.data(),balance:admin.data().balance?parseInt(admin.data().balance) + parseInt(balance):parseInt(balance)})
+  }catch(error){
+    alert(error)
+  }
+  })
+  
 }

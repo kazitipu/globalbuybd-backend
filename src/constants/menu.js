@@ -39,21 +39,27 @@ export const MENUITEMS = [
         ]
     },
     {
-        title: 'Sales', icon: DollarSign, type: 'sub', active: false, children: [
-            { path: '/sales/orders', title: 'Orders', type: 'link' },
-            { path: '/sales/transactions', title: 'Transactions', type: 'link' },
+        title: 'Orders', icon: DollarSign, type: 'sub', active: false, children: [
+            { path: '/sales/orders', title: 'All Orders', type: 'link' },
+            { path: '/sales/order_pending', title: 'Pending Orders', type: 'link' },
+            { path: '/sales/payment_approved', title: 'Payment Approved', type: 'link' },
+            { path: '/sales/ordered', title: 'Ordered', type: 'link' },
+            { path: '/sales/china_warehouse', title: 'China Warehouse', type: 'link' },
+            { path: '/sales/in-shipping', title: 'In Shipment', type: 'link' },
+            { path: '/sales/in_stock', title: 'In stock', type: 'link' },
+            { path: '/sales/delivered', title: 'Delivered', type: 'link' },
         ]
     },
     {
-        title: 'Coupons', icon: Tag, type: 'sub', active: false, children: [
-            { path: '/coupons/list-coupons', title: 'List Coupons', type: 'link' },
-            { path: '/coupons/create-coupons', title: 'Create Coupons', type: 'link' },
+        title: 'Payments', icon: Tag, type: 'sub', active: false, children: [
+            { path: '/payments/unVerified', title: 'Unverified Payments', type: 'link' },
+            { path: '/payments/verified', title: 'Verified Payments', type: 'link' },
         ]
     },
     {
-        title: 'Pages', icon: Clipboard , type: 'sub', active: false, children: [
-            { path: '/pages/list-page', title: 'List Page', type: 'link' },
-            { path: '/pages/create-page', title: 'Create Page', type: 'link' },
+        title: 'Product to order', icon: Clipboard , type: 'sub', active: false, children: [
+            { path: '/pages/product-to-order', title: 'Product to order', type: 'link' },
+         
         ]
     },
     // {
@@ -68,13 +74,12 @@ export const MENUITEMS = [
     {
         title: 'Users', icon: UserPlus, type: 'sub', active: false, children: [
             { path: '/users/list-user', title: 'User List', type: 'link' },
-            { path: '/users/create-user', title: 'Create User', type: 'link' },
+            // { path: '/users/create-user', title: 'Create User', type: 'link' },
         ]
     },
     {
-        title: 'Vendors', icon: Users, type: 'sub', active: false, children: [
-            { path: '/vendors/list_vendors', title: 'Vendor List', type: 'link' },
-            { path: '/vendors/create-vendors', title: 'Create Vendor', type: 'link' },
+        title: 'Suppliers', icon: Users, type: 'sub', active: false, children: [
+            { path: '/suppliers/list_suppliers', title: 'Distributed Orders', type: 'link' },    
         ]
     },
     {
@@ -96,6 +101,7 @@ export const MENUITEMS = [
         title: 'Invoice',path:'/invoice', icon: Archive, type: 'link', active: false
     },
     {
-        title: 'Login',path:'/', icon: LogIn, type: 'link', active: false
-    }
+        title: 'Register a manager',path:'/', icon: LogIn, type: 'link', active: false
+    },
+   
 ]
