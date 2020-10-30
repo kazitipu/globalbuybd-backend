@@ -14,6 +14,11 @@ const setAdminsReducer = (state =INITIAL_STATE, action)=>{
                 )
             
             return {...state, admins:[...state.admins.filter(admin=>!action.payload.adminIdArray.includes(admin.adminId)),...rechargedAdminArray]}
+        case 'SET_CURRENT_ADMIN':
+            return {...state, currentAdmin:action.payload }
+
+        case 'UPDATE_PROFILE_IMAGE':
+            return {...state, image:action.payload}
         default:
             return {...state}
     }

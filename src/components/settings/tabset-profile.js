@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import { Tabs, TabList, TabPanel, Tab } from 'react-tabs';
 import {User,Settings} from 'react-feather'
 
+
 export class Tabset_profile extends Component {
     render() {
+        const {currentAdmin} = this.props
         return (
             <div>
                 <Tabs>
                     <TabList className="nav nav-tabs tab-coupon" >
                         <Tab className="nav-link"><User className="mr-2" />Profile</Tab>
-                        <Tab className="nav-link"><Settings className="mr-2" />Contact</Tab>
+                        {/* <Tab className="nav-link"><Settings className="mr-2" />Account</Tab> */}
                     </TabList>
 
                     <TabPanel>
@@ -19,42 +21,45 @@ export class Tabset_profile extends Component {
                                 <table className="table table-responsive">
                                     <tbody>
                                         <tr>
-                                            <td>First Name:</td>
-                                            <td>John</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Last Name:</td>
-                                            <td>Deo</td>
+                                            <td>Name:</td>
+                                            <td>{currentAdmin.name}</td>
                                         </tr>
                                         <tr>
                                             <td>Email:</td>
-                                            <td>johndeo@gmail.com</td>
+                                            <td>{currentAdmin.email}</td>
                                         </tr>
                                         <tr>
-                                            <td>Gender:</td>
-                                            <td>Male</td>
+                                            <td>Status:</td>
+                                            <td>{currentAdmin.status}</td>
                                         </tr>
                                         <tr>
-                                            <td>Mobile Number:</td>
-                                            <td>2124821463</td>
+                                            <td>Total Balance</td>
+                                            <td>{currentAdmin.balance} Tk</td>
                                         </tr>
                                         <tr>
-                                            <td>DOB:</td>
-                                            <td>Dec, 15 1993</td>
+                                            <td>Remaining Balance</td>
+                                            <td>{currentAdmin.balance - currentAdmin.used_balance} Tk</td>
                                         </tr>
                                         <tr>
-                                            <td>Location:</td>
-                                            <td>USA</td>
+                                            <td>Used Balance</td>
+                                            <td>{currentAdmin.used_balance} Tk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pending Orders</td>
+                                            <td>{currentAdmin.pending_orders.map(order=><span key={order}>{order},&nbsp;</span>)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Delivered Orders</td>
+                                            <td>{currentAdmin.successfully_delivered_orders.map(order=><span key={order}>{order},&nbsp;</span>)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </TabPanel>
-                    <TabPanel>
-                        {/* <div className="tab-pane fade"> */}
-                            <div className="account-setting">
-                                
+
+                    {/* <TabPanel>
+                           <div className="account-setting">        
                                 <h5 className="f-w-600 f-16">Notifications</h5>
                                 <div className="row">
                                     <div className="col">
@@ -112,13 +117,12 @@ export class Tabset_profile extends Component {
                                         <label className="d-block mb-0">
                                             <input className="radio_animated" id="edo-ani5" type="radio" name="rdo-ani1" defaultChecked />
                                             Other
-                                                    </label>
+                                        </label>
                                     </div>
                                 </div>
                                 <button type="button" className="btn btn-primary">Delete Account</button>
                             </div>
-                        {/* </div> */}
-                    </TabPanel>
+                    </TabPanel> */}
                 </Tabs>
             </div>
         )

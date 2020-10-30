@@ -19,12 +19,6 @@ import Add_Aliexpress_product from './components/products/physical/add-aliexpres
 import Update_product from './components/products/physical/update-product'
 import Product_detail from './components/products/physical/product-detail';
 
-//Product Digital
-import Digital_category from './components/products/digital/digital-category';
-import Digital_sub_category from './components/products/digital/digital-sub-category';
-import Digital_pro_list from './components/products/digital/digital-pro-list';
-import Digital_add_pro from './components/products/digital/digital-add-pro';
-
 //Sales
 import Orders from './components/sales/orders';
 import PendingOrders from './components/sales/pendingOrders'
@@ -58,6 +52,8 @@ import Reports from './components/reports/report';
 import Invoice from './components/invoice';
 import Datatable from './components/common/datatable'
 import Login from './components/auth/login';
+import SearchedOrder from './components/searched-order/searched-order';
+
 
 
 
@@ -85,7 +81,8 @@ class Root extends Component {
                         {/* <Route exact path={`${process.env.PUBLIC_URL}/auth/login`} component={Login} /> */}
 
                         <App>
-                            <Route exact path={`${process.env.PUBLIC_URL}/dashboard`} component={()=>currentAdmin?<Dashboard/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/dashboard`} component={Dashboard} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/searched-order/:orderId`} component={SearchedOrder} />
                                 
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/category`} component={(props)=><Category history={props.history}/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/products/physical/sub-category`} component={()=>currentAdmin? <Sub_category/>:<Redirect to='/'/>} />
@@ -128,11 +125,8 @@ class Root extends Component {
                             <Route exact path={`${process.env.PUBLIC_URL}/localization/currency-rates`} component={()=>currentAdmin?<Rates/>:<Redirect to='/'/>} />
                             <Route exact path={`${process.env.PUBLIC_URL}/localization/taxes`} component={()=>currentAdmin?<Taxes/>:<Redirect to='/'/>} />
 
-                            <Route exact path={`${process.env.PUBLIC_URL}/reports/report`} component={()=>currentAdmin?<Reports/>:<Redirect to='/'/>} />
-
-                            <Route exact path={`${process.env.PUBLIC_URL}/settings/profile`} component={()=>currentAdmin?<Profile/>:<Redirect to='/'/>} />
-
-                            <Route exact path={`${process.env.PUBLIC_URL}/invoice`} component={()=>currentAdmin?<Invoice/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/settings/profile`} component={Profile} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/invoice`} component={Invoice} />
 
                             <Route exact path={`${process.env.PUBLIC_URL}/data-table`} component={()=>currentAdmin?<Datatable/>:<Redirect to='/'/>} />
 

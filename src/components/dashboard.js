@@ -4,6 +4,8 @@ import { Navigation, Box, MessageSquare, Users, Briefcase, CreditCard, ShoppingC
 import CountUp from 'react-countup';
 import { Chart } from "react-google-charts";
 import CanvasJSReact from '../assets/canvas/canvasjs.react';
+import {connect} from 'react-redux'
+import {Link} from 'react-router-dom'
 
 import { Pie, Doughnut, Bar, Line } from 'react-chartjs-2';
 import { 
@@ -26,8 +28,20 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 export class Dashboard extends Component {
 
-    render() {
+    getTotalPaymentAmount =(paymentsArray)=>{
+        var totalAmount = paymentsArray.reduce((acc,payments)=>{
+            payments.payments.forEach((payment)=>{
+                acc += parseInt(payment.amount)
+            })
+            return acc
 
+        },0)
+        return totalAmount
+    }
+
+    render() {
+        const {allPayments,allAdmins,allOrders,allProducts} = this.props
+        
         const lineData = {
             labels: ['100', '200', '300', '400', '500', '600', '700', '800'],
             datasets: [
@@ -172,7 +186,7 @@ export class Dashboard extends Component {
                                             <div className="align-self-center text-center"><Navigation className="font-warning" /></div>
                                         </div>
                                         <div className="media-body col-8"><span className="m-0">Earnings</span>
-                                            <h3 className="mb-0">$ <CountUp className="counter" end={6659} /><small> This Month</small></h3>
+                                            <h3 className="mb-0">Tk <CountUp className="counter" end={this.getTotalPaymentAmount(allPayments)} /><small>so far</small></h3>
                                         </div>
                                     </div>
                                 </div>
@@ -186,7 +200,7 @@ export class Dashboard extends Component {
                                             <div className="align-self-center text-center"><Box className="font-secondary" /></div>
                                         </div>
                                         <div className="media-body col-8"><span className="m-0">Products</span>
-                                            <h3 className="mb-0">$ <CountUp className="counter" end={9856} /><small> This Month</small></h3>
+                                            <h3 className="mb-0"><CountUp className="counter" end={allProducts?allProducts.length:''} /><small>available</small></h3>
                                         </div>
                                     </div>
                                 </div>
@@ -199,8 +213,8 @@ export class Dashboard extends Component {
                                         <div className="icons-widgets col-4">
                                             <div className="align-self-center text-center"><MessageSquare className="font-primary" /></div>
                                         </div>
-                                        <div className="media-body col-8"><span className="m-0">Messages</span>
-                                            <h3 className="mb-0">$ <CountUp className="counter" end={893} /><small> This Month</small></h3>
+                                        <div className="media-body col-8"><span className="m-0">Orders</span>
+                                            <h3 className="mb-0"><CountUp className="counter" end={allOrders?allOrders.length:''} /><small>total placed</small></h3>
                                         </div>
                                     </div>
                                 </div>
@@ -213,8 +227,8 @@ export class Dashboard extends Component {
                                         <div className="icons-widgets col-4">
                                             <div className="align-self-center text-center"><Users className="font-danger" /></div>
                                         </div>
-                                        <div className="media-body col-8"><span className="m-0">New Vendors</span>
-                                            <h3 className="mb-0">$ <CountUp className="counter" end={45631} /><small> This Month</small></h3>
+                                        <div className="media-body col-8"><span className="m-0">Suppliers</span>
+                                            <h3 className="mb-0"><CountUp className="counter" end={allAdmins?allAdmins.length:''} /><small> persons</small></h3>
                                         </div>
                                     </div>
                                 </div>
@@ -235,7 +249,7 @@ export class Dashboard extends Component {
                         <div className="col-xl-6 xl-100">
                             <div className="card">
                                 <div className="card-header">
-                                    <h5>Latest Orders</h5>
+                                    <h5>Pending Orders</h5>
                                 </div>
                                 <div className="card-body">
                                     <div className="user-status table-responsive latest-order-table">
@@ -244,44 +258,22 @@ export class Dashboard extends Component {
                                                 <tr>
                                                     <th scope="col">Order ID</th>
                                                     <th scope="col">Order Total</th>
-                                                    <th scope="col">Payment Method</th>
-                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Customer</th>
+                                                    <th scope="col">Phone</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td className="digits">$120.00</td>
-                                                    <td className="font-danger">Bank Transfers</td>
-                                                    <td className="digits">On Way</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td className="digits">$90.00</td>
-                                                    <td className="font-secondary">Ewallets</td>
-                                                    <td className="digits">Delivered</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td className="digits">$240.00</td>
-                                                    <td className="font-warning">Cash</td>
-                                                    <td className="digits">Delivered</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4</td>
-                                                    <td className="digits">$120.00</td>
-                                                    <td className="font-primary">Direct Deposit</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>5</td>
-                                                    <td className="digits">$50.00</td>
-                                                    <td className="font-primary">Bank Transfers</td>
-                                                    <td className="digits">Delivered</td>
-                                                </tr>
+                                                {
+                                                    allOrders?allOrders.filter(order=>order.status ==='order_pending').slice(0,5).map(order=><tr key={order.orderId}>
+                                                        <td className="font-danger">{order.orderId}</td>
+                                                        <td className="font-danger">Tk {order.paymentStatus.total}</td>
+                                                        <td className="font-danger">{order.otherInformation.first_name} {order.otherInformation.last_name}</td>
+                                                        <td className="font-danger">{order.otherInformation.phone}</td>
+                                                    </tr>):''
+                                                }
                                             </tbody>
                                         </table>
-                                        <a href="javascript:void(0)" className="btn btn-primary">View All Orders</a>
+                                        <Link to={`${process.env.PUBLIC_URL}/sales/order_pending`} className="btn btn-primary">View All Pending Orders</Link>
                                     </div>
                                 </div>
                             </div>
@@ -544,57 +536,20 @@ export class Dashboard extends Component {
                                         <table className="table table-bordernone mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Details</th>
-                                                    <th scope="col">Quantity</th>
-                                                    <th scope="col">Status</th>
-                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Order Id</th>
+                                                    <th scope="col">Order Total</th>
+                                                    <th scope="col">Supplier</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>Simply dummy text of the printing</td>
-                                                    <td className="digits">1</td>
-                                                    <td className="font-primary">Pending</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Long established</td>
-                                                    <td className="digits">5</td>
-                                                    <td className="font-secondary">Cancle</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>sometimes by accident</td>
-                                                    <td className="digits">10</td>
-                                                    <td className="font-secondary">Cancle</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>classical Latin literature</td>
-                                                    <td className="digits">9</td>
-                                                    <td className="font-primary">Return</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>keep the site on the Internet</td>
-                                                    <td className="digits">8</td>
-                                                    <td className="font-primary">Pending</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Molestiae consequatur</td>
-                                                    <td className="digits">3</td>
-                                                    <td className="font-secondary">Cancle</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Pain can procure</td>
-                                                    <td className="digits">8</td>
-                                                    <td className="font-primary">Return</td>
-                                                    <td className="digits">$6523</td>
-                                                </tr>
+                                                {allOrders?allOrders.filter(order=>order.status === 'ordered').slice(0,6).map((order,i)=> <tr key={order.orderId}>
+                                                    <td>{order.orderId}</td>
+                                                    <td className="font-danger">Tk {order.paymentStatus.total}</td>
+                                                    {i%2 === 0?<td className="font-secondary">{order.orderTo}</td>:<td className="font-primary">{order.orderTo}</td>}
+                                                </tr>):''}
                                             </tbody>
                                         </table>
+                                        <Link to={`${process.env.PUBLIC_URL}/sales/ordered`} className="btn btn-primary">view All Ordered items</Link>
                                     </div>
                                 </div>
                             </div>
@@ -616,96 +571,26 @@ export class Dashboard extends Component {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td className="bd-t-none u-s-tb">
-                                                        <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={user2} alt="" data-original-title="" title="" />
-                                                            <div className="d-inline-block">
-                                                                <h6>John Deo <span className="text-muted digits">(14+ Online)</span></h6>
+                                                {
+                                                    allAdmins?allAdmins.slice(0,5).map((admin,i)=><tr ke={admin.adminId}>
+                                                        <td className="bd-t-none u-s-tb">
+                                                            <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={admin.image?admin.image:user2} alt={admin.name} data-original-title="" title="" />
+                                                                <div className="d-inline-block">
+                                                                    <h6>{admin.name} <span className="text-muted digits">({admin.successfully_delivered_orders.length})</span></h6>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>Designer</td>
-                                                    <td>
-                                                        <div className="progress-showcase">
-                                                            <div className="progress" style={{ height: 8 }}>
-                                                                <div className="progress-bar bg-primary" style={{ width: 30 }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </td>
+                                                        <td>{admin.status}</td>
+                                                        <td>
+                                                            <div className="progress-showcase">
+                                                                <div className="progress" style={{ height: 8 }}>
+                                                                {i%2===0?<div className="progress-bar bg-primary" style={{ width: 20+admin.successfully_delivered_orders.length }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>:<div className="progress-bar bg-secondary" style={{ width: 20+admin.successfully_delivered_orders.length }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="digits">2 Year</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="bd-t-none u-s-tb">
-                                                        <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={user1} alt="" data-original-title="" title="" />
-                                                            <div className="d-inline-block">
-                                                                <h6>Holio Mako <span className="text-muted digits">(250+ Online)</span></h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>Developer</td>
-                                                    <td>
-                                                        <div className="progress-showcase">
-                                                            <div className="progress" style={{ height: 8 }}>
-                                                                <div className="progress-bar bg-secondary" style={{ width: 70 }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="digits">3 Year</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="bd-t-none u-s-tb">
-                                                        <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={man} alt="" data-original-title="" title="" />
-                                                            <div className="d-inline-block">
-                                                                <h6>Mohsib lara<span className="text-muted digits">(99+ Online)</span></h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>Tester</td>
-                                                    <td>
-                                                        <div className="progress-showcase">
-                                                            <div className="progress" style={{ height: 8 }}>
-                                                                <div className="progress-bar bg-primary" style={{ width: 60 }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="digits">5 Month</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="bd-t-none u-s-tb">
-                                                        <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={user} alt="" data-original-title="" title="" />
-                                                            <div className="d-inline-block">
-                                                                <h6>Hileri Soli <span className="text-muted digits">(150+ Online)</span></h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>Designer</td>
-                                                    <td>
-                                                        <div className="progress-showcase">
-                                                            <div className="progress" style={{ height: 8 }}>
-                                                                <div className="progress-bar bg-secondary" style={{ width: 30 }} role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="digits">3 Month</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="bd-t-none u-s-tb">
-                                                        <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={designer} alt="" data-original-title="" title="" />
-                                                            <div className="d-inline-block">
-                                                                <h6>Pusiz bia <span className="text-muted digits">(14+ Online)</span></h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>Designer</td>
-                                                    <td>
-                                                        <div className="progress-showcase">
-                                                            <div className="progress" style={{ height: 8 }}>
-                                                                <div className="progress-bar bg-primary" role="progressbar" style={{ width: 90 }} aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="digits">5 Year</td>
-                                                </tr>
+                                                        </td>
+                                                        <td className="digits">2 Year</td>
+                                                    </tr>):''
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
@@ -847,4 +732,12 @@ export class Dashboard extends Component {
 }
 // javascript:void(0)
 
-export default Dashboard
+const mapStateToProps =(state)=>{
+    return{
+        allOrders:state.orders.orders,
+        allPayments:state.payments.payments,
+        allAdmins:state.admins.admins,
+        allProducts:state.products.products
+    }
+}
+export default connect(mapStateToProps,null)(Dashboard);

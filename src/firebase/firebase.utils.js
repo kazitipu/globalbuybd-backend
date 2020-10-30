@@ -344,8 +344,14 @@ export const updateMultipleOrder = async (orderIdArray, status) =>{
    orderIdArray.forEach(async orderId=>{
     const orderRef = firestore.doc(`orders/${orderId}`)
     const order = await orderRef.get()
+    const userId = await order.data().userId
+    const userRef = firestore.doc(`users/${userId}`)
+    const user = await userRef.get()
+    var exactOrder = user.data().ordersArray.find(order=>order.orderId == orderId)
+    exactOrder.status = status
+    var otherOrders = user.data().ordersArray.filter(order=>order.orderId !== orderId)
       try{
-
+        await userRef.update({ordersArray:[exactOrder,...otherOrders]})
         return await orderRef.update({...order.data(),status:status})
       }catch(error){
         alert(error)
@@ -357,13 +363,23 @@ export const updateMultipleOrderwithOrderTo = async (orderIdArray, status, order
   orderIdArray.forEach(async orderId=>{
     const orderRef = firestore.doc(`orders/${orderId}`)
     const order = await orderRef.get()
+    const userId = await order.data().userId
+    const userRef = firestore.doc(`users/${userId}`)
+    const user = await userRef.get()
+    var exactOrder = user.data().ordersArray.find(order=>order.orderId == orderId)
+    exactOrder.status = status
+    if (!exactOrder.orderTo){
+      exactOrder.orderTo = orderTo
+    }
+    var otherOrders = user.data().ordersArray.filter(order=>order.orderId !== orderId)
       try{
         if (!order.data().orderTo){
           await orderRef.update({...order.data(),status,orderTo})
         }else{
-          await orderRef.update({...order.data(),status})
+          await orderRef.update({...order.data(),orderTo:order.data().orderTo,status})
           alert(`this ${orderId} order is already ordered to another supplier. check ordered products`)
         }
+        await userRef.update({ordersArray:[exactOrder,...otherOrders]})
         
       }catch(error){
         alert(error)
@@ -399,6 +415,18 @@ export const deletePayment = async(orderId)=>{
 export const updatePaymentStatus = async (paymentObj) =>{
   const paymentRef = firestore.doc(`payments/${paymentObj.orderId}`)
     const payment = await paymentRef.get()
+    var actualPayment = payment.data().payments.find(payment=>payment.paymentId == paymentObj.paymentId)
+    const orderId = actualPayment.orderId
+    const orderRef = firestore.doc(`orders/${orderId}`)
+    const order = await orderRef.get()
+    const userId = await order.data().userId
+    const userRef = firestore.doc(`users/${userId}`)
+    const user = await userRef.get()
+    var exactPayment = user.data().paymentsArray.find(payment=>payment.paymentId == paymentObj.paymentId)
+    exactPayment.paymentStatus = paymentObj.paymentStatus
+    var otherPayments = user.data().paymentsArray.filter(payment=>payment.paymentId !== paymentObj.paymentId)
+
+    await userRef.update({paymentsArray:[exactPayment, ...otherPayments]})
     const updatedPaymentObj = payment.data().payments.find(payment=>payment.paymentId == paymentObj.paymentId)
     updatedPaymentObj.paymentStatus = paymentObj.paymentStatus
     const newPaymentsArray = payment.data().payments.filter(payment=>payment.paymentId !== paymentObj.paymentId) 
@@ -411,10 +439,20 @@ export const updatePaymentStatus = async (paymentObj) =>{
 
 export const updateOrderAmount = async (paymentObj) =>{
   const orderRef = firestore.doc(`orders/${paymentObj.orderId}`)
+  const order = await orderRef.get()
+    const userId = await order.data().userId
+    const userRef = firestore.doc(`users/${userId}`)
+    const user = await userRef.get()
+    var exactOrder = user.data().ordersArray.find(order=>order.orderId == paymentObj.orderId)
+    exactOrder.status === 'order_pending'? exactOrder.status='payment_approved':exactOrder.status=exactOrder.status
+    exactOrder.paymentStatus.paid = (parseInt(exactOrder.paymentStatus.paid) + parseInt(paymentObj.amount))
+    exactOrder.paymentStatus.due = (parseInt(exactOrder.paymentStatus.total) - parseInt(exactOrder.paymentStatus.paid))
+    var otherOrders = user.data().ordersArray.filter(order=>order.orderId !== paymentObj.orderId)
+    await userRef.update({ordersArray:[exactOrder,...otherOrders]})
   try{
     const order =  await orderRef.get()
     console.log(order.data())
-    await orderRef.update({ ...order.data(),status:order.data().status==='order_pending'?'payment_approved':order.data().status, paymentStatus:{...order.data().paymentStatus,paid:parseInt(order.data().paymentStatus.paid) +parseInt(paymentObj.amount)}})
+    await orderRef.update({ ...order.data(),status:order.data().status==='order_pending'?'payment_approved':order.data().status, paymentStatus:{...order.data().paymentStatus,due:parseInt(order.data().paymentStatus.total) - (parseInt(order.data().paymentStatus.paid) +parseInt(paymentObj.amount)),paid:parseInt(order.data().paymentStatus.paid) +parseInt(paymentObj.amount)}})
   }catch(error){
     alert(error)
   }
@@ -432,8 +470,9 @@ export const orderProductsFromChina =async (orderIdArray,orderTo)=>{
           const admins =await adminsCollectionRef.get()
           admins.forEach(doc=>{
             var adminRef = firestore.doc(`admins/${doc.id}`)
-            if (doc.data().name === orderTo){
+            if (doc.data().name == orderTo){
              adminRef.update({...doc.data(),pending_orders:[...doc.data().pending_orders,orderId]})
+             return
             }
           })
          }
@@ -492,4 +531,14 @@ export const rechargeAdmin =async (adminIdArray,balance)=>{
   }
   })
   
+}
+
+export const updateProfileImage = async (imgUrl,id)=>{
+    const adminRef = firestore.doc(`admins/${id}`)
+    try {
+      const admin = await adminRef.get()
+      await adminRef.update({...admin.data(),image:imgUrl})
+    }catch(error){
+      alert(error)
+    }
 }
