@@ -530,7 +530,6 @@ export const rechargeAdmin =async (adminIdArray,balance)=>{
     alert(error)
   }
   })
-  
 }
 
 export const updateProfileImage = async (imgUrl,id)=>{

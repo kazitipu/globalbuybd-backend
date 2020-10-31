@@ -112,10 +112,6 @@ export class Datatable extends Component {
         const newData = []
 
         if (myData && myData.length >0){
-            myData.find(admin=>admin.adminId === 'Wkg1zDbTRVWzgrUTKWykuASchez1').pending_orders.forEach(orderId=>{
-                console.log(orderId)
-            })
-           
             myData.forEach(admin =>{
                 newData.push({
                     adminId:admin.adminId,

@@ -102,7 +102,13 @@ export class SearchedOrder extends Component {
                                                 <div className="media">
                                                     <div className="order-color-success"></div>
                                                     <div className="media-body">
-                                                        <h6 className="mb-0">Variants: </h6>
+                                                        <h6 className="mb-0">{product.color?`Color: ${product.color}`:''} </h6>
+                                                    </div>
+                                                </div>
+                                                <div className="media">
+                                                    <div className="order-color-success"></div>
+                                                    <div className="media-body">
+                                                        <h6 className="mb-0">{product.sizeOrShipsFrom?`SizeOrShipsFrom: ${product.sizeOrShipsFrom}`:''} </h6>
                                                     </div>
                                                 </div>
                                             </div>
