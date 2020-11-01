@@ -217,7 +217,7 @@ export class Datatable extends Component {
                           </div>
                           <div>
                           product Id:{order.id} <br/>
-                          size: {order.size}, color: {order.colors} <br/>
+                          {order.color?`color:  ${order.color}`:''} {order.sizeOrShipsFrom?`sizeOrShipsFrom: ${order.sizeOrShipsFrom}`:''} <br/>
                           ordered At: 12/12/2025
                           </div>
                           </div>):''
