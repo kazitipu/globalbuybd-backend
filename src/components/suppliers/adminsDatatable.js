@@ -252,7 +252,7 @@ export class Datatable extends Component {
             Cell: (row) => (
                 <div>
                     <span >
-                        <input type="checkbox" name={row.original.adminId} defaultChecked={this.state.checkedValues.includes(row.original.adminId)}
+                        <input style={{cursor:"pointer"}} type="checkbox" name={row.original.adminId} defaultChecked={this.state.checkedValues.includes(row.original.adminId)}
                             onChange={e => this.selectRow(e, row.original.adminId)} />
                     </span>
                 </div>

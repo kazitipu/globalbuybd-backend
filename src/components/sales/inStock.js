@@ -45,6 +45,7 @@ export class InStock extends Component {
                                             pageSize={10}
                                             pagination={true}
                                             class="-striped -highlight"
+                                            handleUpdateRow ={this.handleUpdateRow}
                                             {...this.props}
                                         />
                                     </div>

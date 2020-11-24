@@ -49,6 +49,7 @@ export class Datatable extends Component {
         const status = this.state.status
         await updateMultipleOrder(selectedValues,status)
         toast.success("Successfully Updated !")
+        console.log(this.props)
         this.props.handleUpdateRow(selectedValues)
         this.setState({
             checkedValues: [],
@@ -120,7 +121,7 @@ export class Datatable extends Component {
     }
     handleChange = (event) =>{
         const {name,value} =event.target;
-        this.setState({ [name]:value },()=>console.log(this.state.orderTo)); 
+        this.setState({ [name]:value }); 
         
     }
     handleOrderToSubmit =async (e)=>{

@@ -36,10 +36,10 @@ export const createAdminProfileDocument = async (userAuth, additionalData) => {
         email,
         createdAt,
         pending_orders:[],
-        balance:'',
-        used_balance:'',
+        balance:0,
+        used_balance:0,
         successfully_delivered_orders:[],
-        remaining_balance:'',
+        remaining_balance:0,
         ...additionalData,
       });
     } catch (error) {
@@ -350,12 +350,30 @@ export const updateMultipleOrder = async (orderIdArray, status) =>{
     var exactOrder = user.data().ordersArray.find(order=>order.orderId == orderId)
     exactOrder.status = status
     var otherOrders = user.data().ordersArray.filter(order=>order.orderId !== orderId)
-      try{
-        await userRef.update({ordersArray:[exactOrder,...otherOrders]})
-        return await orderRef.update({...order.data(),status:status})
-      }catch(error){
-        alert(error)
-      }
+    console.log(status)
+    if (status == 'delivered'){
+      console.log(status)
+      const adminsCollectionRef = firestore.collection('admins')
+      const admins =await adminsCollectionRef.get()
+      admins.forEach(async (doc)=>{
+        console.log(doc.data().pending_orders.includes(orderId))
+        if (doc.data().pending_orders.includes(orderId)){
+          console.log(status)
+          var adminRef = firestore.doc(`admins/${doc.id}`)
+          var updatedPendingOrders = doc.data().pending_orders.filter(order =>order !== orderId)
+          var newly_used_balance = order.data().sum
+          var total_used_balance = doc.data().used_balance?doc.data().used_balance + newly_used_balance:newly_used_balance
+          await adminRef.update({...doc.data(),pending_orders:[...updatedPendingOrders],successfully_delivered_orders:doc.data().successfully_delivered_orders?[...doc.data().successfully_delivered_orders, orderId]:[orderId],
+          used_balance:total_used_balance,remaining_balance:doc.data().balance - parseInt(total_used_balance) })
+        }        
+          })
+    }
+    try{
+      await userRef.update({ordersArray:[exactOrder,...otherOrders]})
+      return await orderRef.update({...order.data(),status:status})
+    }catch(error){
+      alert(error)
+    }
   })
 }
 
@@ -525,7 +543,8 @@ export const rechargeAdmin =async (adminIdArray,balance)=>{
     const adminRef = firestore.doc(`admins/${adminId}`)
   try{
     const admin =  await adminRef.get()
-    await adminRef.update({ ...admin.data(),balance:admin.data().balance?parseInt(admin.data().balance) + parseInt(balance):parseInt(balance)})
+    var total_balance = parseInt(admin.data().balance) + parseInt(balance)
+    await adminRef.update({ ...admin.data(),balance:admin.data().balance?parseInt(admin.data().balance) + parseInt(balance):parseInt(balance), remaining_balance: total_balance - parseInt(admin.data().used_balance)})
   }catch(error){
     alert(error)
   }
