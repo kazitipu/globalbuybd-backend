@@ -30,19 +30,19 @@ export class Login extends Component {
                                             <div>
                                                 <div>
                                                     <h3>Welcome to GlobalbuyBd</h3>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy.</p>
+                                                    <p>Best e-commerce platform for B2B buisness.You just order your products and leave the rest upon us. we'll deliver to your door.</p>
                                                 </div>
                                             </div>
                                             <div>
                                                 <div>
-                                                    <h3>Welcome to GlobalbuyBd</h3>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy.</p>
+                                                    <h3>Why use GlobalbuyBd?</h3>
+                                                    <p>We just don't receive your product and deliver it to you. We check product quality,condition.packaging. Our agents check your suppliers physical location and check if everythings ok.</p>
                                                 </div>
                                             </div>
                                             <div>
                                                 <div>
-                                                    <h3>Welcome to GlobalbuyBd</h3>
-                                                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy.</p>
+                                                    <h3>from GlobalbuyBd team</h3>
+                                                    <p>For better experience in e-commerce and 24/7 support stay with use</p>
                                                 </div>
                                             </div>
                                         </Slider >

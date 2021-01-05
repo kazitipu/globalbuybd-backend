@@ -12,7 +12,8 @@ import {
     BarChart,Settings,Archive, LogIn
 } from 'react-feather';
 
-export const MENUITEMS = [
+
+export const MENUITEMSFORADMIN = [
     {
         path: '/dashboard', title: 'Dashboard', icon: Home, type: 'link', badgeType: 'primary', active: false
     },
@@ -21,21 +22,10 @@ export const MENUITEMS = [
             {
                 title: 'in stock/pre order', type: 'sub', active: false, children: [
                     { path: '/products/physical/category', title: 'Product List', type: 'link' },
-                    // { path: '/products/physical/sub-category', title: 'Sub Category', type: 'link' },
-                    // { path: '/products/physical/product-list', title: 'Product grid', type: 'link' },
-                    // { path: '/products/physical/product-detail', title: 'Product Detail', type: 'link' },
                     { path: '/products/physical/add-product', title: 'Add Product', type: 'link' },
                     { path: '/products/physical/add-aliexpress-product', title: 'Add AliProduct', type: 'link' },
                 ]
             },
-            // {
-            //     title: 'digital', type: 'sub', active: false, children: [
-            //         { path: '/products/digital/digital-category', title: 'Category', type: 'link' },
-            //         { path: '/products/digital/digital-sub-category', title: 'Sub Category', type: 'link' },
-            //         { path: '/products/digital/digital-product-list', title: 'Product List', type: 'link' },
-            //         { path: '/products/digital/digital-add-product', title: 'Add Product', type: 'link' },
-            //     ]
-            // },
         ]
     },
     {
@@ -84,9 +74,9 @@ export const MENUITEMS = [
     },
     {
         title: 'Localization', icon: Chrome, type: 'sub', children: [
-            { path: '/localization/transactions', title: 'Translations', type: 'link' },
-            { path: '/localization/currency-rates', title: 'Currency Rates', type: 'link' },
-            { path: '/localization/taxes', title: 'Taxes', type: 'link' }
+            { path: '/localization/currency-rates', title: 'Currency Converter', type: 'link' },
+            { path: '/localization/shipping-charges', title: 'Shipping charges', type: 'link' },
+            { path: '/localization/shipping-charge/add-product', title: 'Add Product Shipping charge', type: 'link' }
         ]
     },
     {
@@ -102,3 +92,45 @@ export const MENUITEMS = [
     },
    
 ]
+
+export const MENUITEMSFORAGENT = [
+    {
+        path: '/dashboard', title: 'Dashboard', icon: Home, type: 'link', badgeType: 'primary', active: false
+    },
+    {
+        title: 'Products', icon: Box, type: 'sub', active: false, children: [
+            {
+                title: 'in stock/pre order', type: 'sub', active: false, children: [
+                    { path: '/products/physical/category', title: 'Product List', type: 'link' },
+                    { path: '/products/physical/add-product', title: 'Add Product', type: 'link' },
+                    { path: '/products/physical/add-aliexpress-product', title: 'Add AliProduct', type: 'link' },
+                ]
+            },
+        ]
+    },
+    {
+        title: 'Orders', icon: DollarSign, type: 'sub', active: false, children: [
+            { path: '/sales/ordered', title: 'Ordered', type: 'link' },
+            { path: '/sales/china_warehouse', title: 'China Warehouse', type: 'link' },
+            { path: '/sales/in-shipping', title: 'In Shipment', type: 'link' },
+            { path: '/sales/in_stock', title: 'In stock', type: 'link' },
+            { path: '/sales/delivered', title: 'Delivered', type: 'link' },
+        ]
+    },
+    {
+        title: 'Product to order', icon: Clipboard , type: 'sub', active: false, children: [
+            { path: '/pages/product-to-order', title: 'Product to order', type: 'link' },
+         
+        ]
+    },
+    {
+        title: 'Settings', icon: Settings, type: 'sub', children: [
+            { path: '/settings/profile', title: 'Profile', type: 'link' },
+        ]
+    },
+    {
+        title: 'Logout', path:'/', icon: LogIn, type: 'link', active: false
+    },
+   
+]
+

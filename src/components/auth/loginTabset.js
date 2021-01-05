@@ -89,13 +89,14 @@ export class LoginTabset extends Component {
     }
 
     render() {
+        console.log(this.props.currentAdmin)
         return (
             <div>
                 <Fragment>
                     <Tabs>
                         <TabList className="nav nav-tabs tab-coupon" >
                             <Tab className="nav-link" onClick={(e) => this.clickActive(e)}><User />Login</Tab>
-                            {this.props.currentAdmin?<Tab className="nav-link" onClick={(e) => this.clickActive(e)}><Unlock />Register</Tab>:null }
+                            {this.props.currentAdmin && this.props.currentAdmin.status =='admin'?<Tab className="nav-link" onClick={(e) => this.clickActive(e)}><Unlock />Register</Tab>:null }
                         </TabList>
 
                         <TabPanel>
@@ -129,7 +130,7 @@ export class LoginTabset extends Component {
                                 </div> */}
                             </form>
                         </TabPanel>
-                        {this.props.currentAdmin?(<TabPanel>
+                        {this.props.currentAdmin && this.props.currentAdmin.status =='admin'?(<TabPanel>
                             <form className="form-horizontal auth-form" onSubmit={this.handleRegisterSubmit}>
                                 <div className="form-group">
                                     <input required="" name="registerDisplayName" value={this.state.registerDisplayName} onChange={this.handleChange} type="text" className="form-control" placeholder="name" />

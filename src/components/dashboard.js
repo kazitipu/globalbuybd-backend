@@ -178,6 +178,10 @@ export class Dashboard extends Component {
                 <Breadcrumb title="Dashboard" parent="Dashboard" />
                 <div className="container-fluid">
                     <div className="row">
+                        {
+                            this.props.currentAdmin && this.props.currentAdmin.status =='admin'?
+                        
+                        <>
                         <div className="col-xl-3 col-md-6 xl-50">
                             <div className="card o-hidden widget-cards">
                                 <div className="bg-warning card-body">
@@ -234,6 +238,11 @@ export class Dashboard extends Component {
                                 </div>
                             </div>
                         </div>
+                        </>
+                        :
+                        null
+                        }
+                      
                         <div className="col-xl-6 xl-100">
                             <div className="card">
                                 <div className="card-header">
@@ -262,7 +271,8 @@ export class Dashboard extends Component {
                                                     <th scope="col">Phone</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            {
+                                                this.props.currentAdmin && this.props.currentAdmin.status == 'admin'?<tbody>
                                                 {
                                                     allOrders?allOrders.filter(order=>order.status ==='order_pending').slice(0,5).map(order=><tr key={order.orderId}>
                                                         <td className="font-danger">{order.orderId}</td>
@@ -271,14 +281,27 @@ export class Dashboard extends Component {
                                                         <td className="font-danger">{order.otherInformation.phone}</td>
                                                     </tr>):''
                                                 }
-                                            </tbody>
+                                            </tbody>:
+                                            <tbody>
+                                            {
+                                                allOrders?allOrders.filter(order=>order.status ==='ordered').filter(order=>order.orderTo === this.props.currentAdmin.name).slice(0,5).map(order=><tr key={order.orderId}>
+                                                    <td className="font-danger">{order.orderId}</td>
+                                                    <td className="font-danger">Tk {order.paymentStatus.total}</td>
+                                                    <td className="font-danger">{order.otherInformation.first_name} {order.otherInformation.last_name}</td>
+                                                    <td className="font-danger">{order.otherInformation.phone}</td>
+                                                </tr>):''
+                                            }
+                                        </tbody>
+                                            }
+                                            
                                         </table>
-                                        <Link to={`${process.env.PUBLIC_URL}/sales/order_pending`} className="btn btn-primary">View All Pending Orders</Link>
+                                        {this.props.currentAdmin && this.props.currentAdmin.status == 'admin'?<Link to={`${process.env.PUBLIC_URL}/sales/order_pending`} className="btn btn-primary">View All Pending Orders</Link>:<Link to={`${process.env.PUBLIC_URL}/sales/ordered`} className="btn btn-primary">View All Pending Orders</Link>}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-xl-3 col-md-6 xl-50">
+                        {
+                            this.props.currentAdmin && this.props.currentAdmin.status == 'admin'?<><div className="col-xl-3 col-md-6 xl-50">
                             <div className="card order-graph sales-carousel">
                                 <div className="card-header">
                                     <h6>Total Sales</h6>
@@ -525,11 +548,12 @@ export class Dashboard extends Component {
                                     <Line data={buyData} options={buyOption} width={700} height={350} />
                                 </div>
                             </div>
-                        </div>
+                        </div></>
+                        :null}
                         <div className="col-xl-6 xl-100">
                             <div className="card height-equal">
                                 <div className="card-header">
-                                    <h5>Products Cart</h5>
+                                    <h5>Products to Order</h5>
                                 </div>
                                 <div className="card-body">
                                     <div className="user-status table-responsive products-table">
@@ -541,13 +565,23 @@ export class Dashboard extends Component {
                                                     <th scope="col">Supplier</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            {
+                                                this.props.currentAdmin && this.props.currentAdmin.status =='admin'?<tbody>
                                                 {allOrders?allOrders.filter(order=>order.status === 'ordered').slice(0,6).map((order,i)=> <tr key={order.orderId}>
                                                     <td>{order.orderId}</td>
                                                     <td className="font-danger">Tk {order.paymentStatus.total}</td>
                                                     {i%2 === 0?<td className="font-secondary">{order.orderTo}</td>:<td className="font-primary">{order.orderTo}</td>}
                                                 </tr>):''}
-                                            </tbody>
+                                            </tbody>:
+                                            <tbody>
+                                            {allOrders?allOrders.filter(order=>order.status === 'ordered').filter(order=>order.orderTo === this.props.currentAdmin.name).slice(0,6).map((order,i)=> <tr key={order.orderId}>
+                                                <td>{order.orderId}</td>
+                                                <td className="font-danger">Tk {order.paymentStatus.total}</td>
+                                                {i%2 === 0?<td className="font-secondary">{order.orderTo}</td>:<td className="font-primary">{order.orderTo}</td>}
+                                            </tr>):''}
+                                        </tbody>
+                                            }
+                                            
                                         </table>
                                         <Link to={`${process.env.PUBLIC_URL}/sales/ordered`} className="btn btn-primary">view All Ordered items</Link>
                                     </div>
@@ -572,7 +606,7 @@ export class Dashboard extends Component {
                                             </thead>
                                             <tbody>
                                                 {
-                                                    allAdmins?allAdmins.slice(0,5).map((admin,i)=><tr ke={admin.adminId}>
+                                                    allAdmins?allAdmins.slice(0,5).map((admin,i)=><tr key={admin.adminId}>
                                                         <td className="bd-t-none u-s-tb">
                                                             <div className="align-middle image-sm-size"><img className="img-radius align-top m-r-15 rounded-circle blur-up lazyloaded" src={admin.image?admin.image:user2} alt={admin.name} data-original-title="" title="" />
                                                                 <div className="d-inline-block">
@@ -737,7 +771,8 @@ const mapStateToProps =(state)=>{
         allOrders:state.orders.orders,
         allPayments:state.payments.payments,
         allAdmins:state.admins.admins,
-        allProducts:state.products.products
+        allProducts:state.products.products,
+        currentAdmin:state.admins.currentAdmin
     }
 }
 export default connect(mapStateToProps,null)(Dashboard);

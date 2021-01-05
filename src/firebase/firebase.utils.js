@@ -96,6 +96,25 @@ export const uploadProduct =async(productObj,discount)=>{
     alert('there is already a product with this given prodcut Id, please change the product Id and upload again')
   }
 }
+export const uploadProductTax =async(productObj)=>{
+  const productRef = firestore.doc(`taxes/${productObj.id}`)
+  const snapShot =await productRef.get()
+  const newProductObj ={...productObj}
+  if (!snapShot.exists) {
+    try{
+      productRef.set({
+        ...newProductObj,
+      }
+      )
+    }catch(error){
+      alert(error)
+    }
+   
+  }
+  else{
+    alert('there is already a product with this given prodcut Id, please change the product Id and upload again')
+  }
+}
 export const uploadAliProduct =async(productObj)=>{
   const productRef = firestore.doc(`aliproducts/${productObj.productId}`)
   const snapShot =await productRef.get()
@@ -122,7 +141,7 @@ export const getAllProducts = async()=>{
     const products =await productsCollectionRef.get()
     const productsArray = []
     products.forEach((doc)=>{
-      console.log(doc.id, " => ", doc.data())
+      
       productsArray.push(doc.data())
     })
     return productsArray;
@@ -130,13 +149,27 @@ export const getAllProducts = async()=>{
     alert(error)
   }
 }
+export const getAllProductsTax = async()=>{
+  const productsCollectionRef = firestore.collection('taxes')
+  try{
+    const products =await productsCollectionRef.get()
+    const productsArray = []
+    products.forEach((doc)=>{
+      
+      productsArray.push(doc.data())
+    })
+    return productsArray;
+  }catch(error){
+    alert(error)
+  }
+}
+
 export const getAllAliProducts = async()=>{
   const aliProductsCollectionRef = firestore.collection('aliproducts')
   try{
     const products =await aliProductsCollectionRef.get()
     const aliProductsArray = []
     products.forEach((doc)=>{
-      console.log(doc.id, " => ", doc.data())
       var originalPrice =[]
       if (doc.data().originalPrice.min == doc.data().originalPrice.max){
         originalPrice.push(Math.round(doc.data().originalPrice.min * 90))
@@ -201,6 +234,33 @@ export const deleteProduct = async(id)=>{
   const productRef = firestore.doc(`products/${id}`)
   try{
     await productRef.delete()
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const deleteProductTax = async(id)=>{
+  const productRef = firestore.doc(`taxes/${id}`)
+  try{
+    await productRef.delete()
+  }catch(error){
+    alert(error)
+  }
+}
+export const updateProductTax = async(productObj)=>{
+  const productRef = firestore.doc(`taxes/${productObj.id}`)
+  try{ 
+    await productRef.update({...productObj})
+  }catch(error){
+    alert(error)
+  }
+}
+
+export const getSingleProductTax = async (id)=>{
+  const productRef = firestore.doc(`taxes/${id}`)
+  try{
+    const product = await productRef.get()
+    return product.data()
   }catch(error){
     alert(error)
   }
@@ -289,7 +349,6 @@ export const getAllOrders = async()=>{
     const orders =await ordersCollectionRef.get()
     const ordersArray = []
     orders.forEach((doc)=>{
-      console.log(doc.id, " => ", doc.data())
       ordersArray.push({orderId:doc.id, ...doc.data()})
     })
     return ordersArray;
@@ -412,7 +471,6 @@ export const getAllPayments = async()=>{
     const payments =await paymentsCollectionRef.get()
     const paymentsArray = []
     payments.forEach((doc)=>{
-      console.log(doc.id, " => ", doc.data())
       paymentsArray.push({uid:doc.id, ...doc.data()})
     })
     return paymentsArray;
@@ -559,4 +617,35 @@ export const updateProfileImage = async (imgUrl,id)=>{
     }catch(error){
       alert(error)
     }
+}
+export const setRmbPrice = async (taka)=>{
+    const currencyRef = firestore.doc(`Currency/taka`)
+    let rmbRate
+    if (taka){
+      try {
+        const currency = await currencyRef.get()
+        if (currency.data()){
+          await currencyRef.update({...currency.data(),taka})
+          rmbRate =taka
+          return rmbRate
+        }else{
+          await currencyRef.set({taka:taka})
+          rmbRate =taka
+          return rmbRate
+        }
+       
+      }catch(error){
+        alert(error)
+      }
+    }else{
+      try{
+        const currency = await currencyRef.get()
+        rmbRate = currency.data().taka
+        return rmbRate
+      }catch(error){
+alert(error)
+      }
+      
+    }
+    
 }

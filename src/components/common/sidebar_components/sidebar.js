@@ -1,10 +1,12 @@
 import React, { Component, Fragment } from 'react'
 import User_panel from './user-panel';
 import { Link } from 'react-router-dom';
-import { MENUITEMS } from '../../../constants/menu';
+import { MENUITEMSFORADMIN,MENUITEMSFORAGENT } from '../../../constants/menu';
+import {connect} from 'react-redux'
 
 // image import
 import logo from '../../../assets/images/dashboard/14.png'
+// import { mapStateToProps } from '../header_components/user-menu';
 
 export class sidebar extends Component {
 
@@ -14,9 +16,16 @@ export class sidebar extends Component {
     };
 
     componentWillMount() {
-        this.setState({
-            mainmenu: MENUITEMS
-        })
+        if (this.props.currentAdmin && this.props.currentAdmin.status =='admin'){
+            this.setState({
+                mainmenu: MENUITEMSFORADMIN
+            })
+        }else{
+            this.setState({
+                mainmenu: MENUITEMSFORAGENT
+            })
+        }
+       
     }
     componentDidMount() {
         var currentUrl = window.location.pathname;
@@ -41,7 +50,7 @@ export class sidebar extends Component {
 
     setNavActive(item) {
 
-        MENUITEMS.filter(menuItem => {
+        if (this.props.currentAdmin && this.props.currentAdmin.status =='admin'){MENUITEMSFORADMIN.filter(menuItem => {
             if (menuItem != item)
                 menuItem.active = false
             if (menuItem.children && menuItem.children.includes(item))
@@ -66,10 +75,36 @@ export class sidebar extends Component {
         item.active = !item.active
 
         this.setState({
-            mainmenu: MENUITEMS
-        })
-
-
+            mainmenu: MENUITEMSFORADMIN
+        })}else{
+            MENUITEMSFORAGENT.filter(menuItem => {
+                if (menuItem != item)
+                    menuItem.active = false
+                if (menuItem.children && menuItem.children.includes(item))
+                    menuItem.active = true
+                if (menuItem.children) {
+                    menuItem.children.filter(submenuItems => {
+                        if (submenuItems != item) {
+                            submenuItems.active = false
+                        }
+                        if (submenuItems.children) {
+                            submenuItems.children.map(childItem => {
+                                childItem.active = false;
+                            })
+                            if (submenuItems.children.includes(item)) {
+                                submenuItems.active = true
+                                menuItem.active = true
+                            }
+                        }
+                    })
+                }
+            })
+            item.active = !item.active
+    
+            this.setState({
+                mainmenu: MENUITEMSFORAGENT
+            })
+        }
     }
 
     render() {
@@ -165,5 +200,10 @@ export class sidebar extends Component {
         )
     }
 }
+const mapStateToProps =(state)=>{
+    return{
+        currentAdmin:state.admins.currentAdmin
+    }
+}
 
-export default sidebar
+export default connect(mapStateToProps,null)(sidebar);

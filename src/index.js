@@ -44,9 +44,11 @@ import Create_menu from './components/menus/create-menu';
 import List_user from './components/users/list-user';
 import Create_user from './components/users/create-user';
 import ListSuppliers from './components/suppliers/list-suppliers';
-import Translations from './components/localization/translations';
-import Rates from './components/localization/rates';
+
+import Currency from './components/localization/currency';
 import Taxes from './components/localization/taxes';
+import Add_Product_Tax from './components/localization/add_product_tax'
+import Update_Product_Tax from './components/localization/update-product-tax'
 import Profile from './components/settings/profile';
 import Reports from './components/reports/report';
 import Invoice from './components/invoice';
@@ -120,10 +122,10 @@ class Root extends Component {
 
                             <Route exact path={`${process.env.PUBLIC_URL}/suppliers/list_suppliers`} component={()=><ListSuppliers/>} />
                             
-
-                            <Route exact path={`${process.env.PUBLIC_URL}/localization/transactions`} component={()=>currentAdmin?<Translations/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/localization/currency-rates`} component={()=>currentAdmin?<Rates/>:<Redirect to='/'/>} />
-                            <Route exact path={`${process.env.PUBLIC_URL}/localization/taxes`} component={()=>currentAdmin?<Taxes/>:<Redirect to='/'/>} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/localization/currency-rates`} component={Currency} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/localization/shipping-charges`} component={Taxes} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/localization/shipping-charge/add-product`} component={Add_Product_Tax} />
+                            <Route exact path={`${process.env.PUBLIC_URL}/localization/shipping-charges/add-product/:id`} component={Update_Product_Tax} />
 
                             <Route exact path={`${process.env.PUBLIC_URL}/settings/profile`} component={Profile} />
                             <Route exact path={`${process.env.PUBLIC_URL}/invoice`} component={Invoice} />
